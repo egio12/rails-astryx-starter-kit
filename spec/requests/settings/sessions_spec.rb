@@ -43,7 +43,7 @@ RSpec.describe "Settings::Sessions", type: :request do
       get settings_sessions_path
 
       expect(inertia.props[:auth][:user].keys)
-        .to match_array(%w[id name email verified created_at updated_at])
+        .to match_array(%w[id name email verified created_at updated_at avatar_url])
       expect(inertia.props[:auth][:user][:email]).to eq(user.email)
       expect(inertia.props[:auth][:session].keys).to eq(%w[id])
     end

@@ -44,26 +44,28 @@ export default function DeleteUser() {
   }
 
   return (
-    <VStack gap={4}>
-      <VStack gap={1}>
-        <Heading level={2}>Delete account</Heading>
-        <Text type="supporting" as="p">
-          Delete your account and all of its resources
-        </Text>
-      </VStack>
+    <>
+      <VStack gap={4}>
+        <VStack gap={1}>
+          <Heading level={2}>Delete account</Heading>
+          <Text type="supporting" color="secondary">
+            Delete your account and all of its resources
+          </Text>
+        </VStack>
 
-      <Banner
-        status="error"
-        title="Warning"
-        description="Please proceed with caution, this cannot be undone."
-        endContent={
-          <Button
-            label="Delete account"
-            variant="destructive"
-            onClick={() => updateDeletionOpen(true)}
-          />
-        }
-      />
+        <Banner
+          status="error"
+          title="Warning"
+          description="Please proceed with caution, this cannot be undone."
+          endContent={
+            <Button
+              label="Delete account"
+              variant="destructive"
+              onClick={() => updateDeletionOpen(true)}
+            />
+          }
+        />
+      </VStack>
 
       <Dialog
         isOpen={isOpen}
@@ -122,6 +124,6 @@ export default function DeleteUser() {
           }
         />
       </Dialog>
-    </VStack>
+    </>
   )
 }

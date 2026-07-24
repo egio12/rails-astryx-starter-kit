@@ -26,7 +26,13 @@ export function UserMenuContent({ auth }: UserMenuContentProps) {
       button={{
         label: user.name,
         variant: "ghost",
-        icon: <Avatar name={user.name} size="sm" />,
+        icon: (
+          <Avatar
+            src={user.avatar_url ?? undefined}
+            name={user.name}
+            size="sm"
+          />
+        ),
         isIconOnly: true,
       }}
       items={[
