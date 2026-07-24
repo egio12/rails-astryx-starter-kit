@@ -10,6 +10,10 @@ class SessionsController < InertiaController
   rate_limit to: 10, within: 3.minutes, name: "sign-in-ip",
              with: :rate_limit_exceeded, only: :create
 
+  rate_limit to: 5, within: 3.minutes, name: "sign-in-email",
+             by: -> { params[:email].to_s.downcase.strip },
+             with: :rate_limit_exceeded, only: :create
+
   def new
   end
 

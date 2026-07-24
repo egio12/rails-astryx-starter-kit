@@ -54,6 +54,30 @@ RSpec.describe "Sessions", type: :request do
         expect(flash[:alert]).to eq("Too many sign in attempts. Please try again in a few minutes")
       end
     end
+
+    context "when rate limited by email" do
+      it "blocks the 6th attempt against the same email" do
+        5.times do
+          post sign_in_path, params: { email: users(:one).email, password: "wrongpassword" }
+          expect(flash[:alert]).to eq("That email or password is incorrect")
+        end
+
+        post sign_in_path, params: { email: users(:one).email, password: "wrongpassword" }
+
+        expect(response).to redirect_to(sign_in_path)
+        expect(flash[:alert]).to eq("Too many sign in attempts. Please try again in a few minutes")
+      end
+
+      it "ignores casing and surrounding whitespace in the email" do
+        5.times do
+          post sign_in_path, params: { email: users(:one).email, password: "wrongpassword" }
+        end
+
+        post sign_in_path, params: { email: " #{users(:one).email.upcase} ", password: "wrongpassword" }
+
+        expect(flash[:alert]).to eq("Too many sign in attempts. Please try again in a few minutes")
+      end
+    end
   end
 
   describe "DELETE /sessions/:id" do
