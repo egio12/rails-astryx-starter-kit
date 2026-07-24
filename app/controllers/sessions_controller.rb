@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 class SessionsController < InertiaController
+  RATE_LIMIT_ALERT = "Too many sign in attempts. Please try again in a few minutes"
+
   skip_before_action :authenticate, only: %i[new create]
   before_action :require_no_authentication, only: %i[new create]
   before_action :set_session, only: :destroy
+
+  rate_limit to: 10, within: 3.minutes, name: "sign-in-ip",
+             with: :rate_limit_exceeded, only: :create
 
   def new
   end
@@ -29,5 +34,9 @@ class SessionsController < InertiaController
 
   def set_session
     @session = Current.user.sessions.find(params[:id])
+  end
+
+  def rate_limit_exceeded
+    redirect_to sign_in_path, alert: RATE_LIMIT_ALERT
   end
 end

@@ -40,6 +40,20 @@ RSpec.describe "Sessions", type: :request do
         expect(response).to redirect_to(sign_in_path)
       end
     end
+
+    context "when rate limited by IP" do
+      it "blocks the 11th attempt from the same IP" do
+        10.times do |i|
+          post sign_in_path, params: { email: "attacker#{i}@example.com", password: "wrongpassword" }
+          expect(flash[:alert]).to eq("That email or password is incorrect")
+        end
+
+        post sign_in_path, params: { email: "attacker10@example.com", password: "wrongpassword" }
+
+        expect(response).to redirect_to(sign_in_path)
+        expect(flash[:alert]).to eq("Too many sign in attempts. Please try again in a few minutes")
+      end
+    end
   end
 
   describe "DELETE /sessions/:id" do

@@ -22,6 +22,11 @@ Rails.application.configure do
   config.consider_all_requests_local = true
   config.cache_store = :null_store
 
+  # Rate limiting counts requests in the Action Controller cache store. Under :null_store,
+  # `increment` returns nil and limits can never fire, so give this layer a real store while
+  # leaving general caching disabled.
+  config.action_controller.cache_store = :memory_store
+
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
 
