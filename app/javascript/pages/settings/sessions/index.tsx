@@ -1,8 +1,16 @@
 import { Button } from "@astryxdesign/core/Button"
 import { HStack, VStack } from "@astryxdesign/core/Layout"
-import { List, ListItem } from "@astryxdesign/core/List"
 import { StatusDot } from "@astryxdesign/core/StatusDot"
-import { Heading, Text } from "@astryxdesign/core/Text"
+import {
+  Table,
+  type TableColumn,
+  type TableSortState,
+  pixel,
+  proportional,
+  useTablePagination,
+  useTableSortable,
+} from "@astryxdesign/core/Table"
+import { Text } from "@astryxdesign/core/Text"
 import { Head, router, usePage } from "@inertiajs/react"
 
 import { PageHeading } from "@/components/page-heading"
@@ -18,8 +26,106 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-export default function Sessions({ sessions }: SettingsSessionsIndex) {
+// The index props are recomputed on every visit, so a partial reload only has to
+// ask for the table itself.
+const TABLE_PROPS = ["sessions", "pagy", "sort_key", "sort_direction"]
+
+type SessionRow = SettingsSessionsIndex["sessions"][number]
+
+export default function Sessions({
+  sessions,
+  pagy,
+  sort_key,
+  sort_direction,
+}: SettingsSessionsIndex) {
   const { auth } = usePage().props
+
+  const reload = (query: Record<string, string | number>) =>
+    router.get(
+      settingsSessions.index({ query }).url,
+      {},
+      { preserveState: true, preserveScroll: true, only: TABLE_PROPS },
+    )
+
+  const sort: TableSortState<string> = [
+    {
+      sortKey: sort_key,
+      direction: sort_direction === "asc" ? "ascending" : "descending",
+    },
+  ]
+
+  const sortable = useTableSortable<SessionRow>({
+    sort,
+    onSortChange: (next) => {
+      const entry = next[0]
+      if (!entry) return
+
+      reload({
+        page: 1,
+        sort: entry.sortKey,
+        direction: entry.direction === "ascending" ? "asc" : "desc",
+      })
+    },
+  })
+
+  const pagination = useTablePagination<SessionRow>({
+    page: pagy.page,
+    totalItems: pagy.count,
+    pageSize: pagy.limit,
+    onPageChange: (page) =>
+      reload({ page, sort: sort_key, direction: sort_direction }),
+  })
+
+  const columns: TableColumn<SessionRow>[] = [
+    {
+      key: "user_agent",
+      header: "Device",
+      width: proportional(2),
+      sortable: true,
+      renderCell: (session) => (
+        <Text>{session.user_agent ?? "Unknown device"}</Text>
+      ),
+    },
+    {
+      key: "ip_address",
+      header: "IP address",
+      width: proportional(1),
+      sortable: true,
+      renderCell: (session) => <Text>{session.ip_address ?? "—"}</Text>,
+    },
+    {
+      key: "created_at",
+      header: "Active since",
+      width: proportional(1),
+      sortable: true,
+      renderCell: (session) => (
+        <Text>{new Date(session.created_at).toLocaleString()}</Text>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      width: pixel(160),
+      align: "end",
+      resizable: false,
+      renderCell: (session) =>
+        session.id === auth.session.id ? (
+          <HStack gap={1} vAlign="center" hAlign="end">
+            <StatusDot variant="success" label="Current session" />
+            <Text type="supporting">Current</Text>
+          </HStack>
+        ) : (
+          <Button
+            label="Log out"
+            variant="destructive"
+            size="sm"
+            onClick={() =>
+              router.delete(sessionsRoutes.destroy(session.id).url)
+            }
+          />
+        ),
+    },
+  ]
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
@@ -32,50 +138,15 @@ export default function Sessions({ sessions }: SettingsSessionsIndex) {
             description="Manage your active sessions across devices"
           />
 
-          <List
-            hasDividers
+          <Table
+            data={sessions}
+            columns={columns}
+            idKey="id"
             density="balanced"
-            header={<Heading level={2}>Active sessions</Heading>}
-          >
-            {sessions.map((session) => {
-              const isCurrentSession = session.id === auth.session.id
-
-              return (
-                <ListItem
-                  key={session.id}
-                  label={session.user_agent}
-                  description={
-                    <VStack gap={0.5}>
-                      <Text type="supporting" as="p">
-                        IP: {session.ip_address}
-                      </Text>
-                      <Text type="supporting" as="p">
-                        Active since:{" "}
-                        {new Date(session.created_at).toLocaleString()}
-                      </Text>
-                    </VStack>
-                  }
-                  endContent={
-                    isCurrentSession ? (
-                      <HStack gap={1} vAlign="center">
-                        <StatusDot variant="success" label="Current session" />
-                        <Text type="supporting">Current</Text>
-                      </HStack>
-                    ) : (
-                      <Button
-                        label="Log out"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() =>
-                          router.delete(sessionsRoutes.destroy(session.id).url)
-                        }
-                      />
-                    )
-                  }
-                />
-              )
-            })}
-          </List>
+            hasHover
+            textOverflow="truncate"
+            plugins={{ sortable, pagination }}
+          />
         </VStack>
       </SettingsLayout>
     </AppLayout>
