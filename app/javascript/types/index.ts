@@ -1,5 +1,3 @@
-import type { IconType } from "@astryxdesign/core/Icon"
-
 export interface Auth {
   user: User
   session: Pick<Session, "id">
@@ -13,7 +11,6 @@ export interface BreadcrumbItem {
 export interface NavItem {
   title: string
   href: string
-  icon?: IconType | null
   isActive?: boolean
 }
 
