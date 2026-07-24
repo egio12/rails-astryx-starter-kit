@@ -136,6 +136,9 @@ RSpec.describe "Astryx UI", type: :system do
   end
 
   it "renders dashboard widgets and session management rows" do
+    other_session = users(:one).sessions.create!
+    other_session.update!(user_agent: "Other browser", ip_address: "203.0.113.7")
+
     sign_in_as users(:one)
 
     visit dashboard_path
@@ -150,17 +153,30 @@ RSpec.describe "Astryx UI", type: :system do
       dashboard_heading_x = find("h1", text: "Dashboard").rect.x
       starter_widgets_heading_x = find("h2", text: "Starter widgets").rect.x
       expect(dashboard_heading_x).to be_within(1).of(starter_widgets_heading_x)
+
+      primary_content_heading_x = find("h2", text: "Primary content").rect.x
+      expect(dashboard_heading_x).to be_within(1).of(primary_content_heading_x)
     end
 
     visit settings_sessions_path
 
     within('[role="main"]') do
       expect(page).to have_css("ul[aria-labelledby]", text: "Current")
+      expect(page).to have_css('[aria-label="Current session"]')
       expect(page).to have_text("Current")
+      expect(page).to have_text("Other browser")
+      expect(page).to have_text("IP: 203.0.113.7")
+      expect(page).to have_button("Log out", count: 1)
 
       sessions_heading_x = find("h1", text: "Sessions").rect.x
       active_sessions_heading_x = find("h2", text: "Active sessions").rect.x
       expect(sessions_heading_x).to be_within(1).of(active_sessions_heading_x)
+
+      click_on "Log out"
+
+      expect(page).to have_no_text("Other browser")
+      expect(page).to have_css('[aria-label="Current session"]')
+      expect(page).to have_text("Current")
     end
   end
 end

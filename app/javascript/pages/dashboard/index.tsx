@@ -51,7 +51,7 @@ export default function Dashboard() {
             </Grid>
           </VStack>
 
-          <Section>
+          <Section padding={4}>
             <VStack gap={2}>
               <Heading level={2}>Primary content</Heading>
               <Text color="secondary">
