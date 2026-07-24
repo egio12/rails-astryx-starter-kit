@@ -1,17 +1,16 @@
-import { Transition } from "@headlessui/react"
-import { Form, Head, Link, usePage } from "@inertiajs/react"
+import { Banner } from "@astryxdesign/core/Banner"
+import { Button } from "@astryxdesign/core/Button"
+import { FormLayout } from "@astryxdesign/core/FormLayout"
+import { HStack, VStack } from "@astryxdesign/core/Layout"
+import { Text } from "@astryxdesign/core/Text"
+import { TextInput } from "@astryxdesign/core/TextInput"
+import { Form, Head, router, usePage } from "@inertiajs/react"
+import { useState } from "react"
 
-import HeadingSmall from "@/components/heading-small"
-import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+import { PageHeading } from "@/components/page-heading"
 import AppLayout from "@/layouts/app-layout"
 import SettingsLayout from "@/layouts/settings/layout"
+import { astryxStatus } from "@/lib/astryx"
 import { identityEmailVerifications, settingsEmails } from "@/routes"
 import type { BreadcrumbItem } from "@/types"
 
@@ -24,101 +23,84 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Email() {
   const { auth } = usePage().props
+  const [email, setEmail] = useState(auth.user.email)
+  const [passwordChallenge, setPasswordChallenge] = useState("")
+
+  const clearPasswordChallenge = () => setPasswordChallenge("")
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={breadcrumbs[breadcrumbs.length - 1].title} />
 
       <SettingsLayout>
-        <div className="space-y-6">
-          <HeadingSmall
+        <VStack gap={6}>
+          <PageHeading
             title="Update email"
             description="Update your email address and verify it"
           />
+
+          {!auth.user.verified && (
+            <Banner
+              status="warning"
+              title="Your email address is unverified."
+              description="Verify your email address to keep your account secure."
+              endContent={
+                <Button
+                  label="Resend verification email"
+                  variant="ghost"
+                  onClick={() =>
+                    router.post(identityEmailVerifications.create().url)
+                  }
+                />
+              }
+            />
+          )}
 
           <Form
             action={settingsEmails.update()}
             options={{
               preserveScroll: true,
             }}
-            resetOnError={["password_challenge"]}
-            resetOnSuccess={["password_challenge"]}
-            className="space-y-6"
+            onSuccess={clearPasswordChallenge}
+            onError={clearPasswordChallenge}
           >
             {({ errors, processing, recentlySuccessful }) => (
-              <>
-                <FieldGroup>
-                  <Field>
-                    <FieldLabel htmlFor="email">Email address</FieldLabel>
-
-                    <Input
-                      id="email"
-                      type="email"
-                      name="email"
-                      defaultValue={auth.user.email}
-                      required
-                      autoComplete="username"
-                      placeholder="Email address"
-                    />
-
-                    <FieldError
-                      errors={errors.email?.map((message) => ({ message }))}
-                    />
-                  </Field>
-
-                  {!auth.user.verified && (
-                    <div>
-                      <p className="text-muted-foreground -mt-4 text-sm">
-                        Your email address is unverified.{" "}
-                        <Link
-                          href={identityEmailVerifications.create()}
-                          as="button"
-                          className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                        >
-                          Click here to resend the verification email.
-                        </Link>
-                      </p>
-                    </div>
-                  )}
-
-                  <Field>
-                    <FieldLabel htmlFor="password_challenge">
-                      Current password
-                    </FieldLabel>
-
-                    <Input
-                      id="password_challenge"
-                      name="password_challenge"
-                      type="password"
-                      autoComplete="current-password"
-                      placeholder="Current password"
-                    />
-
-                    <FieldError
-                      errors={errors.password_challenge?.map((message) => ({
-                        message,
-                      }))}
-                    />
-                  </Field>
-                </FieldGroup>
-
-                <div className="flex items-center gap-4">
-                  <Button disabled={processing}>Save</Button>
-
-                  <Transition
-                    show={recentlySuccessful}
-                    enter="transition ease-in-out"
-                    enterFrom="opacity-0"
-                    leave="transition ease-in-out"
-                    leaveTo="opacity-0"
-                  >
-                    <p className="text-sm text-neutral-600">Saved</p>
-                  </Transition>
-                </div>
-              </>
+              <FormLayout>
+                <TextInput
+                  label="Email address"
+                  type="email"
+                  htmlName="email"
+                  value={email}
+                  onChange={setEmail}
+                  isRequired
+                  autoComplete="username"
+                  placeholder="Email address"
+                  status={astryxStatus(errors.email)}
+                />
+                <TextInput
+                  label="Current password"
+                  type="password"
+                  htmlName="password_challenge"
+                  value={passwordChallenge}
+                  onChange={setPasswordChallenge}
+                  isRequired
+                  autoComplete="current-password"
+                  placeholder="Current password"
+                  status={astryxStatus(errors.password_challenge)}
+                />
+                <HStack gap={4} vAlign="center">
+                  <Button
+                    type="submit"
+                    label="Save"
+                    variant="primary"
+                    isLoading={processing}
+                  />
+                  {recentlySuccessful && <Text type="supporting">Saved</Text>}
+                </HStack>
+              </FormLayout>
             )}
           </Form>
-        </div>
+        </VStack>
       </SettingsLayout>
     </AppLayout>
   )

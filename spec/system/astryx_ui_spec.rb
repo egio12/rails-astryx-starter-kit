@@ -71,4 +71,21 @@ RSpec.describe "Astryx UI", type: :system do
   ensure
     page.current_window.resize_to(1400, 900)
   end
+
+  it "renders settings forms and destructive confirmation with Astryx" do
+    sign_in_as users(:one)
+
+    visit settings_profile_path
+    expect(page).to have_css(".astryx-text-input", minimum: 1)
+    click_on "Delete account"
+    expect(page).to have_css(".astryx-dialog")
+    expect(page).to have_text("Delete account?")
+    expect(page).to have_field("Password")
+
+    visit settings_email_path
+    expect(page).to have_css(".astryx-text-input")
+
+    visit settings_password_path
+    expect(page).to have_css(".astryx-text-input", minimum: 3)
+  end
 end
