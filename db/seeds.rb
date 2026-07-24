@@ -7,3 +7,11 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+if Rails.env.development?
+  User.find_or_create_by!(email: "dev@example.com") do |user|
+    user.name = "Dev User"
+    user.password = user.password_confirmation = "password123456"
+    user.verified = true
+  end
+end
