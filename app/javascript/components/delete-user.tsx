@@ -1,106 +1,127 @@
-import { Form } from "@inertiajs/react"
-import { useRef } from "react"
-
-import HeadingSmall from "@/components/heading-small"
-import { Button } from "@/components/ui/button"
+import { Banner } from "@astryxdesign/core/Banner"
+import { Button } from "@astryxdesign/core/Button"
+import { Dialog, DialogHeader } from "@astryxdesign/core/Dialog"
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Field, FieldError, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+  HStack,
+  Layout,
+  LayoutContent,
+  LayoutFooter,
+  VStack,
+} from "@astryxdesign/core/Layout"
+import { Heading, Text } from "@astryxdesign/core/Text"
+import { TextInput } from "@astryxdesign/core/TextInput"
+import { useForm } from "@inertiajs/react"
+import { useRef, useState } from "react"
+
+import { astryxStatus } from "@/lib/astryx"
 import { users } from "@/routes"
 
 export default function DeleteUser() {
+  const [isOpen, setIsOpen] = useState(false)
+  const deletion = useForm({ password_challenge: "" })
   const passwordInput = useRef<HTMLInputElement>(null)
 
+  const closeDeletion = () => {
+    deletion.reset()
+    deletion.clearErrors()
+    setIsOpen(false)
+  }
+
+  const updateDeletionOpen = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setIsOpen(true)
+    } else {
+      closeDeletion()
+    }
+  }
+
+  const submitDeletion = () => {
+    deletion.delete(users.destroy().url, {
+      preserveScroll: true,
+      onSuccess: closeDeletion,
+      onError: () => passwordInput.current?.focus(),
+    })
+  }
+
   return (
-    <div className="space-y-6">
-      <HeadingSmall
-        title="Delete account"
-        description="Delete your account and all of its resources"
+    <VStack gap={4}>
+      <VStack gap={1}>
+        <Heading level={2}>Delete account</Heading>
+        <Text type="supporting" as="p">
+          Delete your account and all of its resources
+        </Text>
+      </VStack>
+
+      <Banner
+        status="error"
+        title="Warning"
+        description="Please proceed with caution, this cannot be undone."
+        endContent={
+          <Button
+            label="Delete account"
+            variant="destructive"
+            onClick={() => updateDeletionOpen(true)}
+          />
+        }
       />
-      <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
-        <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-          <p className="font-medium">Warning</p>
-          <p className="text-sm">
-            Please proceed with caution, this cannot be undone.
-          </p>
-        </div>
 
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="destructive">Delete account</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogTitle>
-              Are you sure you want to delete your account?
-            </DialogTitle>
-            <DialogDescription>
-              Once your account is deleted, all of its resources and data will
-              also be permanently deleted. Please enter your password to confirm
-              you would like to permanently delete your account.
-            </DialogDescription>
-            <Form
-              action={users.destroy()}
-              options={{
-                preserveScroll: true,
-              }}
-              onError={() => passwordInput.current?.focus()}
-              resetOnSuccess
-              className="space-y-6"
-            >
-              {({ resetAndClearErrors, processing, errors }) => (
-                <>
-                  <Field>
-                    <FieldLabel
-                      htmlFor="password_challenge"
-                      className="sr-only"
-                    >
-                      Password
-                    </FieldLabel>
-
-                    <Input
-                      id="password_challenge"
-                      type="password"
-                      name="password_challenge"
-                      ref={passwordInput}
-                      placeholder="Password"
-                      autoComplete="current-password"
-                    />
-
-                    <FieldError
-                      errors={errors.password_challenge?.map((message) => ({
-                        message,
-                      }))}
-                    />
-                  </Field>
-
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button
-                        variant="secondary"
-                        onClick={() => resetAndClearErrors()}
-                      >
-                        Cancel
-                      </Button>
-                    </DialogClose>
-
-                    <Button variant="destructive" disabled={processing} asChild>
-                      <button type="submit">Delete account</button>
-                    </Button>
-                  </DialogFooter>
-                </>
-              )}
-            </Form>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
+      <Dialog
+        isOpen={isOpen}
+        onOpenChange={updateDeletionOpen}
+        purpose="form"
+        width={480}
+      >
+        <Layout
+          header={
+            <DialogHeader
+              title="Delete account?"
+              subtitle="This action cannot be undone."
+              onOpenChange={updateDeletionOpen}
+            />
+          }
+          content={
+            <LayoutContent>
+              <VStack gap={4}>
+                <Text type="body" as="p">
+                  Enter your password to permanently delete your account and all
+                  associated data.
+                </Text>
+                <TextInput
+                  label="Password"
+                  type="password"
+                  ref={passwordInput}
+                  value={deletion.data.password_challenge}
+                  onChange={(value) =>
+                    deletion.setData("password_challenge", value)
+                  }
+                  status={astryxStatus(deletion.errors.password_challenge)}
+                  isRequired
+                  hasAutoFocus
+                  autoComplete="current-password"
+                />
+              </VStack>
+            </LayoutContent>
+          }
+          footer={
+            <LayoutFooter>
+              <HStack gap={2} hAlign="end">
+                <Button
+                  label="Cancel"
+                  variant="secondary"
+                  onClick={closeDeletion}
+                />
+                <Button
+                  label="Delete account"
+                  variant="destructive"
+                  isDisabled={!deletion.data.password_challenge}
+                  isLoading={deletion.processing}
+                  onClick={submitDeletion}
+                />
+              </HStack>
+            </LayoutFooter>
+          }
+        />
+      </Dialog>
+    </VStack>
   )
 }

@@ -51,6 +51,12 @@ writing the fix. Most bugs are a misused API, not a broken one.
 Never state that something works, is fixed, or passes without having run the command and read its
 output. Use `superpowers:verification-before-completion` before claiming any work is complete.
 
+## Browser verification
+
+Use Safari for local browser automation and system-test verification unless the user explicitly
+requests another browser. Run RSpec system tests with `SYSTEM_TEST_BROWSER=safari`. Keep the
+headless Chrome default for Linux CI, where Safari is unavailable.
+
 <!-- ASTRYX:START -->
 Astryx v0.1.8 · 153 components
 CLI: run every command as `npx astryx <cmd>` (shown below as `astryx ...`).
@@ -67,6 +73,7 @@ WORKFLOW — discover, don't guess. Before writing UI:
 RULES:
 - No <div> — components do all layout/spacing. Full page → AppShell; sidebar nav → SideNav.
 - Frame first: pick the shell (AppShell / Layout+LayoutPanel) and budget regions in px BEFORE writing content (`astryx docs layout`).
+- Nested `Section` is full-bleed by design: it escapes its parent container padding. Use `Section` only for an intentional page region or surface; use `VStack`/`HStack` for neutral grouping. When nested section content must align with its parent, set the documented `padding` prop explicitly to the same spacing step instead of relying on the theme default.
 - Dense data = rows (Table, List/Item) edge-to-edge — never Card-wrapped list items. Card = dashboard widgets, galleries, settings groups only.
 - Status → StatusDot/Token; Badge only for counts and enumerated states, never decoration.
 - Custom styling: component props first; else Tailwind utilities backed by tokens (bg-surface, text-primary, rounded-lg) via tailwind-theme.css. No raw hex/px.

@@ -1,24 +1,9 @@
-import { Link } from "@inertiajs/react"
-import type { ComponentProps } from "react"
+import { Link as AstryxLink, type LinkProps } from "@astryxdesign/core/Link"
 
-import { cn } from "@/lib/utils"
+import { AppLink } from "@/components/inertia-link"
 
-type LinkProps = ComponentProps<typeof Link>
+type TextLinkProps = Omit<LinkProps, "as">
 
-export default function TextLink({
-  className = "",
-  children,
-  ...props
-}: LinkProps) {
-  return (
-    <Link
-      className={cn(
-        "text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </Link>
-  )
+export default function TextLink(props: TextLinkProps) {
+  return <AstryxLink as={AppLink} hasUnderline type="inherit" {...props} />
 }

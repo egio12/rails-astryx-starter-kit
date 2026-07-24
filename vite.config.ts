@@ -8,7 +8,9 @@ import { defineConfig } from "vite"
 export default defineConfig(({ command }) => ({
   ssr: {
     // Prebuild ssr.js so we can drop node_modules from the container.
-    noExternal: command === "build" ? true : undefined,
+    // The neutral theme ships an extensionless relative ESM import,
+    // so Vite must transform it before Node evaluates the SSR graph.
+    noExternal: command === "build" ? true : ["@astryxdesign/theme-neutral"],
     // React 19 ships CJS-only — externalize in dev so Node handles require natively.
     external:
       command === "serve"

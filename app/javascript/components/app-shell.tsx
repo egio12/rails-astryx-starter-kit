@@ -1,34 +1,25 @@
-import { useState } from "react"
+import { AppShell as AstryxAppShell } from "@astryxdesign/core/AppShell"
 
-import { SidebarProvider } from "@/components/ui/sidebar"
-import * as storage from "@/lib/storage"
+import { AppHeader } from "@/components/app-header"
+import { AppSidebar } from "@/components/app-sidebar"
+import type { BreadcrumbItem } from "@/types"
 
 interface AppShellProps {
   children: React.ReactNode
-  variant?: "header" | "sidebar"
+  breadcrumbs?: BreadcrumbItem[]
 }
 
-export function AppShell({ children, variant = "header" }: AppShellProps) {
-  const [isOpen, setIsOpen] = useState(
-    () => storage.getItem("sidebar") !== "false",
-  )
-
-  const handleSidebarChange = (open: boolean) => {
-    setIsOpen(open)
-    storage.setItem("sidebar", String(open))
-  }
-
-  if (variant === "header") {
-    return <div className="flex min-h-screen w-full flex-col">{children}</div>
-  }
-
+export function AppShell({ children, breadcrumbs = [] }: AppShellProps) {
   return (
-    <SidebarProvider
-      defaultOpen={isOpen}
-      open={isOpen}
-      onOpenChange={handleSidebarChange}
+    <AstryxAppShell
+      variant="elevated"
+      height="fill"
+      contentPadding={0}
+      sideNav={<AppSidebar />}
+      mobileNav={{ breakpoint: "md" }}
     >
+      <AppHeader breadcrumbs={breadcrumbs} />
       {children}
-    </SidebarProvider>
+    </AstryxAppShell>
   )
 }

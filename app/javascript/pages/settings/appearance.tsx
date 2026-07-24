@@ -1,7 +1,9 @@
+import { VStack } from "@astryxdesign/core/Layout"
+import { Section } from "@astryxdesign/core/Section"
 import { Head } from "@inertiajs/react"
 
-import AppearanceTabs from "@/components/appearance-tabs"
-import HeadingSmall from "@/components/heading-small"
+import AppearanceControl from "@/components/appearance-control"
+import { PageHeading } from "@/components/page-heading"
 import AppLayout from "@/layouts/app-layout"
 import SettingsLayout from "@/layouts/settings/layout"
 import { settingsAppearance } from "@/routes"
@@ -20,13 +22,15 @@ export default function Appearance() {
       <Head title={breadcrumbs[breadcrumbs.length - 1].title} />
 
       <SettingsLayout>
-        <div className="space-y-6">
-          <HeadingSmall
-            title="Appearance settings"
-            description="Update your account's appearance settings"
-          />
-          <AppearanceTabs />
-        </div>
+        <Section>
+          <VStack gap={4}>
+            <PageHeading
+              title="Appearance settings"
+              description="Update your account's appearance settings"
+            />
+            <AppearanceControl />
+          </VStack>
+        </Section>
       </SettingsLayout>
     </AppLayout>
   )

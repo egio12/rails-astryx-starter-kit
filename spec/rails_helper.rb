@@ -18,13 +18,16 @@ rescue ActiveRecord::PendingMigrationError => e
 end
 
 RSpec.configure do |config|
+  system_test_browser = ENV.fetch("SYSTEM_TEST_BROWSER", "headless_chrome").to_sym
+  Capybara.default_set_options = { clear: :backspace }
+
   config.fixture_paths = [ Rails.root.join("spec/fixtures") ]
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
 
   config.before(type: :system) do
-    driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
+    driven_by :selenium, using: system_test_browser, screen_size: [ 1400, 1400 ]
   end
 
   config.include ActiveSupport::Testing::TimeHelpers

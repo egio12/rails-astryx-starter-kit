@@ -15,4 +15,15 @@ RSpec.describe "Sessions", type: :system do
     expect(page).to have_current_path(dashboard_path)
     expect(page).to have_text("Dashboard")
   end
+
+  it "shows invalid credentials in an Astryx toast" do
+    visit sign_in_path
+
+    fill_in "Email address", with: users(:one).email
+    fill_in "Password", with: "wrongpassword"
+    click_on "Log in"
+
+    expect(page).to have_css(".astryx-toast")
+    expect(page).to have_text("That email or password is incorrect")
+  end
 end
