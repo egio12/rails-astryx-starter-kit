@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 
-import AuthLayoutTemplate from "@/layouts/auth/auth-simple-layout"
+import AuthSimpleLayout from "@/layouts/auth/auth-simple-layout"
 
 export default function AuthLayout({
   children,
@@ -13,8 +13,8 @@ export default function AuthLayout({
   description: string
 }) {
   return (
-    <AuthLayoutTemplate title={title} description={description} {...props}>
+    <AuthSimpleLayout title={title} description={description} {...props}>
       {children}
-    </AuthLayoutTemplate>
+    </AuthSimpleLayout>
   )
 }

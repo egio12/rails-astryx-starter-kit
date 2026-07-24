@@ -1,19 +1,26 @@
+import { Button } from "@astryxdesign/core/Button"
+import { FormLayout } from "@astryxdesign/core/FormLayout"
+import { Text } from "@astryxdesign/core/Text"
+import { TextInput } from "@astryxdesign/core/TextInput"
 import { Form, Head } from "@inertiajs/react"
+import { useState } from "react"
 
 import TextLink from "@/components/text-link"
-import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Spinner } from "@/components/ui/spinner"
 import AuthLayout from "@/layouts/auth-layout"
+import { astryxStatus } from "@/lib/astryx"
 import { sessions, users } from "@/routes"
 
 export default function Register() {
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = useState("")
+
+  const clearPasswords = () => {
+    setPassword("")
+    setPasswordConfirmation("")
+  }
+
   return (
     <AuthLayout
       title="Create an account"
@@ -22,96 +29,72 @@ export default function Register() {
       <Head title="Register" />
       <Form
         action={users.create()}
-        resetOnSuccess={["password", "password_confirmation"]}
         disableWhileProcessing
-        className="flex flex-col gap-6"
+        onSuccess={clearPasswords}
       >
         {({ processing, errors }) => (
-          <>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="name">Name</FieldLabel>
-                <Input
-                  id="name"
-                  type="text"
-                  name="name"
-                  required
-                  autoFocus
-                  tabIndex={1}
-                  autoComplete="name"
-                  disabled={processing}
-                  placeholder="Full name"
-                />
-                <FieldError
-                  errors={errors.name?.map((message) => ({ message }))}
-                />
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="email">Email address</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  required
-                  tabIndex={2}
-                  autoComplete="email"
-                  placeholder="email@example.com"
-                />
-                <FieldError
-                  errors={errors.email?.map((message) => ({ message }))}
-                />
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  required
-                  tabIndex={3}
-                  autoComplete="new-password"
-                  placeholder="Password"
-                />
-                <FieldError
-                  errors={errors.password?.map((message) => ({ message }))}
-                />
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor="password_confirmation">
-                  Confirm password
-                </FieldLabel>
-                <Input
-                  id="password_confirmation"
-                  type="password"
-                  name="password_confirmation"
-                  required
-                  tabIndex={4}
-                  autoComplete="new-password"
-                  placeholder="Confirm password"
-                />
-                <FieldError
-                  errors={errors.password_confirmation?.map((message) => ({
-                    message,
-                  }))}
-                />
-              </Field>
-
-              <Button type="submit" className="mt-2 w-full" tabIndex={5}>
-                {processing && <Spinner />}
-                Create account
-              </Button>
-            </FieldGroup>
-
-            <div className="text-muted-foreground text-center text-sm">
+          <FormLayout>
+            <TextInput
+              label="Name"
+              htmlName="name"
+              value={name}
+              onChange={setName}
+              isRequired
+              hasAutoFocus
+              autoComplete="name"
+              isDisabled={processing}
+              placeholder="Full name"
+              status={astryxStatus(errors.name)}
+              width="100%"
+            />
+            <TextInput
+              label="Email address"
+              type="email"
+              htmlName="email"
+              value={email}
+              onChange={setEmail}
+              isRequired
+              autoComplete="email"
+              placeholder="email@example.com"
+              status={astryxStatus(errors.email)}
+              width="100%"
+            />
+            <TextInput
+              label="Password"
+              type="password"
+              htmlName="password"
+              value={password}
+              onChange={setPassword}
+              isRequired
+              autoComplete="new-password"
+              placeholder="Password"
+              status={astryxStatus(errors.password)}
+              width="100%"
+            />
+            <TextInput
+              label="Confirm password"
+              type="password"
+              htmlName="password_confirmation"
+              value={passwordConfirmation}
+              onChange={setPasswordConfirmation}
+              isRequired
+              autoComplete="new-password"
+              placeholder="Confirm password"
+              status={astryxStatus(errors.password_confirmation)}
+              width="100%"
+            />
+            <Button
+              type="submit"
+              label="Create account"
+              variant="primary"
+              width="100%"
+              isLoading={processing}
+            />
+            <Text type="supporting" as="p" justify="center">
               Already have an account?{" "}
-              <TextLink href={sessions.new()} tabIndex={6}>
-                Log in
-              </TextLink>
-            </div>
-          </>
+              <TextLink href={sessions.new().url}>Log in</TextLink>
+            </Text>
+          </FormLayout>
         )}
       </Form>
     </AuthLayout>

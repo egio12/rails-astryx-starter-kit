@@ -16,4 +16,18 @@ RSpec.describe "Astryx UI", type: :system do
     expect(page).to have_css('[role="main"]')
     expect(page).to have_text("Dashboard")
   end
+
+  it "renders public and authentication routes with Astryx controls" do
+    visit root_path
+    expect(page).to have_css(".astryx-link")
+
+    visit sign_in_path
+    expect(page).to have_css(".astryx-text-input", count: 2)
+    expect(page).to have_css(".astryx-button")
+
+    button_padding = page.evaluate_script(
+      "getComputedStyle(document.querySelector('.astryx-button')).paddingInline"
+    )
+    expect(button_padding).not_to eq("0px")
+  end
 end

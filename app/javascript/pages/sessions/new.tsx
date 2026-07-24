@@ -1,93 +1,71 @@
+import { Button } from "@astryxdesign/core/Button"
+import { FormLayout } from "@astryxdesign/core/FormLayout"
+import { HStack } from "@astryxdesign/core/Layout"
+import { Text } from "@astryxdesign/core/Text"
+import { TextInput } from "@astryxdesign/core/TextInput"
 import { Form, Head } from "@inertiajs/react"
+import { useState } from "react"
 
 import TextLink from "@/components/text-link"
-import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Spinner } from "@/components/ui/spinner"
 import AuthLayout from "@/layouts/auth-layout"
+import { astryxStatus } from "@/lib/astryx"
 import { identityPasswordResets, sessions, users } from "@/routes"
 
 export default function Login() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
   return (
     <AuthLayout
       title="Log in to your account"
       description="Enter your email and password below to log in"
     >
       <Head title="Log in" />
-      <Form
-        action={sessions.create()}
-        resetOnSuccess={["password"]}
-        className="flex flex-col gap-6"
-      >
+      <Form action={sessions.create()} onSuccess={() => setPassword("")}>
         {({ processing, errors }) => (
-          <>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email address</FieldLabel>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoFocus
-                  tabIndex={1}
-                  autoComplete="email"
-                  placeholder="email@example.com"
-                />
-                <FieldError
-                  errors={errors.email?.map((message) => ({ message }))}
-                />
-              </Field>
-
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <TextLink
-                    href={identityPasswordResets.new()}
-                    className="ml-auto text-sm"
-                    tabIndex={5}
-                  >
-                    Forgot password?
-                  </TextLink>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  required
-                  tabIndex={2}
-                  autoComplete="current-password"
-                  placeholder="Password"
-                />
-                <FieldError
-                  errors={errors.password?.map((message) => ({ message }))}
-                />
-              </Field>
-
-              <Button
-                type="submit"
-                className="mt-4 w-full"
-                tabIndex={4}
-                disabled={processing}
-              >
-                {processing && <Spinner />}
-                Log in
-              </Button>
-            </FieldGroup>
-
-            <div className="text-muted-foreground text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <TextLink href={users.new()} tabIndex={5}>
-                Sign up
+          <FormLayout>
+            <TextInput
+              label="Email address"
+              type="email"
+              htmlName="email"
+              value={email}
+              onChange={setEmail}
+              isRequired
+              hasAutoFocus
+              autoComplete="email"
+              placeholder="email@example.com"
+              status={astryxStatus(errors.email)}
+              width="100%"
+            />
+            <HStack justify="end">
+              <TextLink href={identityPasswordResets.new().url} isStandalone>
+                Forgot password?
               </TextLink>
-            </div>
-          </>
+            </HStack>
+            <TextInput
+              label="Password"
+              type="password"
+              htmlName="password"
+              value={password}
+              onChange={setPassword}
+              isRequired
+              autoComplete="current-password"
+              placeholder="Password"
+              status={astryxStatus(errors.password)}
+              width="100%"
+            />
+            <Button
+              type="submit"
+              label="Log in"
+              variant="primary"
+              width="100%"
+              isLoading={processing}
+            />
+            <Text type="supporting" as="p" justify="center">
+              Don&apos;t have an account?{" "}
+              <TextLink href={users.new().url}>Sign up</TextLink>
+            </Text>
+          </FormLayout>
         )}
       </Form>
     </AuthLayout>

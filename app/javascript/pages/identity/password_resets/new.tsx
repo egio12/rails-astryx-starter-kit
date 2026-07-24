@@ -1,54 +1,54 @@
+import { Button } from "@astryxdesign/core/Button"
+import { FormLayout } from "@astryxdesign/core/FormLayout"
+import { Text } from "@astryxdesign/core/Text"
+import { TextInput } from "@astryxdesign/core/TextInput"
 import { Form, Head } from "@inertiajs/react"
+import { useState } from "react"
 
 import TextLink from "@/components/text-link"
-import { Button } from "@/components/ui/button"
-import { Field, FieldError, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Spinner } from "@/components/ui/spinner"
 import AuthLayout from "@/layouts/auth-layout"
+import { astryxStatus } from "@/lib/astryx"
 import { identityPasswordResets, sessions } from "@/routes"
 
 export default function ForgotPassword() {
+  const [email, setEmail] = useState("")
+
   return (
     <AuthLayout
       title="Forgot password"
       description="Enter your email to receive a password reset link"
     >
       <Head title="Forgot password" />
-
-      <div className="space-y-6">
-        <Form action={identityPasswordResets.create()}>
-          {({ processing, errors }) => (
-            <>
-              <Field>
-                <FieldLabel htmlFor="email">Email address</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  autoComplete="off"
-                  autoFocus
-                  placeholder="email@example.com"
-                />
-                <FieldError
-                  errors={errors.email?.map((message) => ({ message }))}
-                />
-              </Field>
-
-              <div className="my-6 flex items-center justify-start">
-                <Button className="w-full" disabled={processing}>
-                  {processing && <Spinner />}
-                  Email password reset link
-                </Button>
-              </div>
-            </>
-          )}
-        </Form>
-        <div className="text-muted-foreground space-x-1 text-center text-sm">
-          <span>Or, return to</span>
-          <TextLink href={sessions.new()}>log in</TextLink>
-        </div>
-      </div>
+      <Form action={identityPasswordResets.create()}>
+        {({ processing, errors }) => (
+          <FormLayout>
+            <TextInput
+              label="Email address"
+              type="email"
+              htmlName="email"
+              value={email}
+              onChange={setEmail}
+              isRequired
+              hasAutoFocus
+              autoComplete="off"
+              placeholder="email@example.com"
+              status={astryxStatus(errors.email)}
+              width="100%"
+            />
+            <Button
+              type="submit"
+              label="Email password reset link"
+              variant="primary"
+              width="100%"
+              isLoading={processing}
+            />
+            <Text type="supporting" as="p" justify="center">
+              Or, return to{" "}
+              <TextLink href={sessions.new().url}>log in</TextLink>
+            </Text>
+          </FormLayout>
+        )}
+      </Form>
     </AuthLayout>
   )
 }

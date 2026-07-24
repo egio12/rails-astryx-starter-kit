@@ -1,15 +1,11 @@
+import { Button } from "@astryxdesign/core/Button"
+import { FormLayout } from "@astryxdesign/core/FormLayout"
+import { TextInput } from "@astryxdesign/core/TextInput"
 import { Form, Head } from "@inertiajs/react"
+import { useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Spinner } from "@/components/ui/spinner"
 import AuthLayout from "@/layouts/auth-layout"
+import { astryxStatus } from "@/lib/astryx"
 import { identityPasswordResets } from "@/routes"
 
 interface ResetPasswordProps {
@@ -18,6 +14,14 @@ interface ResetPasswordProps {
 }
 
 export default function ResetPassword({ sid, email }: ResetPasswordProps) {
+  const [password, setPassword] = useState("")
+  const [passwordConfirmation, setPasswordConfirmation] = useState("")
+
+  const clearPasswords = () => {
+    setPassword("")
+    setPasswordConfirmation("")
+  }
+
   return (
     <AuthLayout
       title="Reset password"
@@ -27,63 +31,56 @@ export default function ResetPassword({ sid, email }: ResetPasswordProps) {
       <Form
         action={identityPasswordResets.update()}
         transform={(data) => ({ ...data, sid, email })}
-        resetOnSuccess={["password", "password_confirmation"]}
+        onSuccess={clearPasswords}
       >
         {({ processing, errors }) => (
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                name="email"
-                autoComplete="email"
-                value={email}
-                readOnly
-              />
-              <FieldError
-                errors={errors.email?.map((message) => ({ message }))}
-              />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input
-                id="password"
-                type="password"
-                name="password"
-                autoComplete="new-password"
-                autoFocus
-                placeholder="Password"
-              />
-              <FieldError
-                errors={errors.password?.map((message) => ({ message }))}
-              />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="password_confirmation">
-                Confirm password
-              </FieldLabel>
-              <Input
-                id="password_confirmation"
-                type="password"
-                name="password_confirmation"
-                autoComplete="new-password"
-                placeholder="Confirm password"
-              />
-              <FieldError
-                errors={errors.password_confirmation?.map((message) => ({
-                  message,
-                }))}
-              />
-            </Field>
-
-            <Button type="submit" className="mt-4 w-full" disabled={processing}>
-              {processing && <Spinner />}
-              Reset password
-            </Button>
-          </FieldGroup>
+          <FormLayout>
+            <TextInput
+              label="Email"
+              type="email"
+              htmlName="email"
+              value={email}
+              onChange={() => undefined}
+              isRequired
+              isDisabled
+              disabledMessage="This email came from your password reset link."
+              autoComplete="email"
+              status={astryxStatus(errors.email)}
+              width="100%"
+            />
+            <TextInput
+              label="Password"
+              type="password"
+              htmlName="password"
+              value={password}
+              onChange={setPassword}
+              isRequired
+              hasAutoFocus
+              autoComplete="new-password"
+              placeholder="Password"
+              status={astryxStatus(errors.password)}
+              width="100%"
+            />
+            <TextInput
+              label="Confirm password"
+              type="password"
+              htmlName="password_confirmation"
+              value={passwordConfirmation}
+              onChange={setPasswordConfirmation}
+              isRequired
+              autoComplete="new-password"
+              placeholder="Confirm password"
+              status={astryxStatus(errors.password_confirmation)}
+              width="100%"
+            />
+            <Button
+              type="submit"
+              label="Reset password"
+              variant="primary"
+              width="100%"
+              isLoading={processing}
+            />
+          </FormLayout>
         )}
       </Form>
     </AuthLayout>

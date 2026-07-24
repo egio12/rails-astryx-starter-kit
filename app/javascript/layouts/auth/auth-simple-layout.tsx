@@ -1,7 +1,11 @@
-import { Link } from "@inertiajs/react"
+import { Card } from "@astryxdesign/core/Card"
+import { Center } from "@astryxdesign/core/Center"
+import { Layout, LayoutContent, VStack } from "@astryxdesign/core/Layout"
+import { Link } from "@astryxdesign/core/Link"
+import { Heading, Text } from "@astryxdesign/core/Text"
 import type { PropsWithChildren } from "react"
 
-import AppLogoIcon from "@/components/app-logo-icon"
+import AppLogo from "@/components/app-logo"
 import { home } from "@/routes"
 
 interface AuthLayoutProps {
@@ -16,30 +20,33 @@ export default function AuthSimpleLayout({
   description,
 }: PropsWithChildren<AuthLayoutProps>) {
   return (
-    <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col items-center gap-4">
-            <Link
-              href={home.index()}
-              className="flex flex-col items-center gap-2 font-medium"
-            >
-              <div className="mb-1 flex size-14 items-center justify-center rounded-md">
-                <AppLogoIcon className="size-14 fill-current text-[var(--foreground)] dark:text-white" />
-              </div>
-              <span className="sr-only">{title}</span>
-            </Link>
-
-            <div className="space-y-2 text-center">
-              <h1 className="text-xl font-medium">{title}</h1>
-              <p className="text-muted-foreground text-center text-sm">
-                {description}
-              </p>
-            </div>
-          </div>
-          {children}
-        </div>
-      </div>
-    </div>
+    <Layout
+      height="fill"
+      contentWidth={640}
+      content={
+        <LayoutContent role="main" padding={4}>
+          <Center width="100%" minHeight="calc(100svh - var(--spacing-8))">
+            <VStack width="100%" maxWidth={420} gap={4} align="center">
+              <Link href={home.index().url} label="Back to home">
+                <AppLogo />
+              </Link>
+              <Card width="100%" maxWidth={420} padding={6}>
+                <VStack gap={6}>
+                  <VStack gap={1} align="center">
+                    <Heading level={1} justify="center">
+                      {title}
+                    </Heading>
+                    <Text type="supporting" as="p" justify="center">
+                      {description}
+                    </Text>
+                  </VStack>
+                  {children}
+                </VStack>
+              </Card>
+            </VStack>
+          </Center>
+        </LayoutContent>
+      }
+    />
   )
 }
