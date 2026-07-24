@@ -30,6 +30,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 // ask for the table itself.
 const TABLE_PROPS = ["sessions", "pagy", "sort_key", "sort_direction"]
 
+// Mirrors Settings::SessionsController's default ordering. A server-rendered
+// list always has an order, so clearing the sort falls back here rather than
+// leaving the table in an unsorted state the server cannot express.
+const DEFAULT_SORT = { key: "created_at", direction: "desc" } as const
+
 type SessionRow = SettingsSessionsIndex["sessions"][number]
 
 export default function Sessions({
@@ -56,14 +61,22 @@ export default function Sessions({
 
   const sortable = useTableSortable<SessionRow>({
     sort,
+    // Keep the header a two-state toggle. Without this the third click asks for
+    // an unsorted table, which server-side ordering cannot represent.
+    allowUnsortedState: false,
+    // An empty array still arrives from the header's "Clear sort" menu action,
+    // and means "back to the default order".
     onSortChange: (next) => {
       const entry = next[0]
-      if (!entry) return
 
       reload({
         page: 1,
-        sort: entry.sortKey,
-        direction: entry.direction === "ascending" ? "asc" : "desc",
+        sort: entry?.sortKey ?? DEFAULT_SORT.key,
+        direction: entry
+          ? entry.direction === "ascending"
+            ? "asc"
+            : "desc"
+          : DEFAULT_SORT.direction,
       })
     },
   })

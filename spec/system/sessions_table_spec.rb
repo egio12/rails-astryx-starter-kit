@@ -18,11 +18,7 @@ RSpec.describe "Sessions table", type: :system do
       )
     end
 
-    visit sign_in_path
-    fill_in "Email address", with: user.email
-    fill_in "Password", with: "Secret1*3*5*"
-    click_on "Log in"
-    expect(page).to have_current_path(dashboard_path)
+    sign_in_through_form(user)
   end
 
   it "paginates on the server and keeps the page in the URL" do
@@ -49,5 +45,18 @@ RSpec.describe "Sessions table", type: :system do
     end
 
     expect(page).to have_current_path(/sort=user_agent/)
+  end
+
+  it "toggles the sort direction on every subsequent click" do
+    visit settings_sessions_path
+
+    within('[role="main"]') { click_on "Device" }
+    expect(page).to have_current_path(/sort=user_agent&direction=asc/)
+
+    within('[role="main"]') { click_on "Device" }
+    expect(page).to have_current_path(/sort=user_agent&direction=desc/)
+
+    within('[role="main"]') { click_on "Device" }
+    expect(page).to have_current_path(/sort=user_agent&direction=asc/)
   end
 end

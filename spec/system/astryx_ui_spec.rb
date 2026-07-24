@@ -5,13 +5,7 @@ require "rails_helper"
 RSpec.describe "Astryx UI", type: :system do
   fixtures :users
 
-  def sign_in_as(user)
-    visit sign_in_path
-    fill_in "Email address", with: user.email
-    fill_in "Password", with: "Secret1*3*5*"
-    click_on "Log in"
-    expect(page).to have_current_path(dashboard_path)
-  end
+  def sign_in_as(user) = sign_in_through_form(user)
 
   it "renders the authenticated side-nav-only application frame" do
     sign_in_as users(:one)

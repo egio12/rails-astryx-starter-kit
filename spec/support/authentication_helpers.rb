@@ -19,9 +19,27 @@ module AuthenticationHelpers
   end
 
   module System
+    PASSWORD = "Secret1*3*5*"
+
     def sign_in(user)
       session = user.sessions.create!
       page.driver.set_cookie("session_token", AuthenticationHelpers.signed_cookie(:session_token, session.id))
+    end
+
+    # Signs in through the real form. Safari occasionally moves focus late after
+    # `fill_in`, sending the password into the email field, so each value is
+    # confirmed before moving on.
+    def sign_in_through_form(user, password: PASSWORD)
+      visit sign_in_path
+
+      fill_in "Email address", with: user.email
+      expect(page).to have_field("Email address", with: user.email)
+
+      fill_in "Password", with: password
+      expect(page).to have_field("Password", with: password)
+
+      click_on "Log in"
+      expect(page).to have_current_path(dashboard_path)
     end
 
     def sign_out
