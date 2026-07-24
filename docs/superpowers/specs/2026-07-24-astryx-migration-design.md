@@ -138,7 +138,7 @@ component. The expected semantic mapping is:
 | Dropdown and overflow actions | `DropdownMenu`, `MoreMenu`, or CLI-confirmed equivalent |
 | Informational page feedback | `Banner` |
 | Transient flash feedback | `useToast` and Astryx toast viewport |
-| Destructive confirmation | `AlertDialog` |
+| Destructive form confirmation | `Dialog` with `purpose="form"` |
 | Loading state | Native loading/progress component and component loading props |
 | Enumerated state or count | `Token`, `StatusDot`, or `Badge` according to semantics |
 
@@ -176,9 +176,11 @@ render as edge-to-edge list rows rather than card-wrapped items.
 
 ### Destructive Account Action
 
-Account deletion will use Astryx `AlertDialog`, preserve password confirmation
-and server validation, retain focus management, and keep the existing Inertia
-delete request. Errors remain in the dialog near the relevant field.
+Account deletion will use Astryx `Dialog` with `purpose="form"`, following the
+installed `DialogFormDialog` template. The dialog contains its header,
+consequence description, password challenge, inline server validation, cancel
+action, and destructive submit action. The existing Inertia delete request and
+focus management remain intact.
 
 ## State and Data Flow
 
@@ -204,7 +206,8 @@ navigation state.
 - Server validation errors render inline on their corresponding Astryx inputs.
 - Blocking or persistent errors use `Banner`.
 - Non-blocking success and informational flash messages use Astryx toasts.
-- Destructive actions require `AlertDialog`.
+- Destructive actions that collect input require `Dialog` with
+  `purpose="form"`; simple irreversible confirmations may use `AlertDialog`.
 - Mobile navigation must close on route changes and restore focus correctly.
 - The shell must retain skip-to-content behavior supplied by `AppShell`.
 - Navigation, menus, dialogs, appearance controls, and forms must be operable
