@@ -46,6 +46,12 @@ gem "authentication-zero"
 # Brings Rails named routes to javascript
 gem "typelizer"
 
+# JSON serializers for Inertia props, typed end to end by Typelizer
+# [https://github.com/okuramasafumi/alba]
+gem "alba"
+# Renders Alba resources as Inertia props [https://github.com/skryukov/alba-inertia]
+gem "alba-inertia"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

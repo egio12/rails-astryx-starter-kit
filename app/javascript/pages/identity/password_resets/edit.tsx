@@ -7,13 +7,12 @@ import { useState } from "react"
 import AuthLayout from "@/layouts/auth-layout"
 import { astryxStatus } from "@/lib/astryx"
 import { identityPasswordResets } from "@/routes"
+import type { IdentityPasswordResetsEdit } from "@/types"
 
-interface ResetPasswordProps {
-  sid: string
-  email: string
-}
-
-export default function ResetPassword({ sid, email }: ResetPasswordProps) {
+export default function ResetPassword({
+  sid,
+  email,
+}: IdentityPasswordResetsEdit) {
   const [password, setPassword] = useState("")
   const [passwordConfirmation, setPasswordConfirmation] = useState("")
 

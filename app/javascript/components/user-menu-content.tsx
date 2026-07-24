@@ -4,15 +4,10 @@ import { router } from "@inertiajs/react"
 import { LogOut, Settings } from "lucide-react"
 
 import { sessions, settingsProfiles } from "@/routes"
-import type { User } from "@/types"
+import type { SharedProps } from "@/types"
 
 interface UserMenuContentProps {
-  auth: {
-    session: {
-      id: number
-    }
-    user: User
-  }
+  auth: SharedProps["auth"]
 }
 
 export function UserMenuContent({ auth }: UserMenuContentProps) {
@@ -31,7 +26,7 @@ export function UserMenuContent({ auth }: UserMenuContentProps) {
       button={{
         label: user.name,
         variant: "ghost",
-        icon: <Avatar src={user.avatar} name={user.name} size="sm" />,
+        icon: <Avatar name={user.name} size="sm" />,
         isIconOnly: true,
       }}
       items={[
