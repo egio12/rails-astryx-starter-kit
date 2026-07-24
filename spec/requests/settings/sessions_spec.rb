@@ -91,6 +91,21 @@ RSpec.describe "Settings::Sessions", type: :request do
         expect(inertia.props[:sort_direction]).to eq("asc")
       end
 
+      it "orders tied values deterministically by id" do
+        # Every session shares the same ip_address here, so only the tiebreaker
+        # can decide the order — and it has to follow the requested direction.
+        ids = 3.times.map { user.sessions.create!.tap { |s| s.update!(ip_address: "203.0.113.1") }.id }
+
+        get settings_sessions_path, params: { sort: "ip_address", direction: "asc" }
+        ascending = inertia.props[:sessions].map { |s| s["id"] } & ids
+
+        get settings_sessions_path, params: { sort: "ip_address", direction: "desc" }
+        descending = inertia.props[:sessions].map { |s| s["id"] } & ids
+
+        expect(ascending).to eq(ids.sort)
+        expect(descending).to eq(ids.sort.reverse)
+      end
+
       it "falls back to the default column when the sort param is not allowed" do
         get settings_sessions_path, params: { sort: "user_id", direction: "asc" }
 

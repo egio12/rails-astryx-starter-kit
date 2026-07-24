@@ -8,7 +8,11 @@ class Settings::SessionsController < InertiaController
     @sort_key = SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : DEFAULT_SORT_COLUMN
     @sort_direction = (params[:direction] == "asc") ? "asc" : "desc"
 
-    sessions = authorized_scope(Session.all).order(@sort_key => @sort_direction)
+    # The id tiebreaker keeps the order total. Without it, rows sharing a value
+    # (every session from the same IP, say) come back in an arbitrary order that
+    # can shift between queries — which makes paging skip or repeat rows.
+    sessions = authorized_scope(Session.all)
+                 .order(@sort_key => @sort_direction, :id => @sort_direction)
 
     @pagy, @sessions = pagy(:offset, sessions)
   end
