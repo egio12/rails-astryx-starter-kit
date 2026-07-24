@@ -53,9 +53,15 @@ output. Use `superpowers:verification-before-completion` before claiming any wor
 
 ## Browser verification
 
-Use Safari for local browser automation and system-test verification unless the user explicitly
-requests another browser. Run RSpec system tests with `SYSTEM_TEST_BROWSER=safari`. Keep the
-headless Chrome default for Linux CI, where Safari is unavailable.
+Use Chrome for browser automation and system-test verification. Run RSpec system tests with the
+default browser (`bin/rspec spec/system`), which is headless Chrome.
+
+Do not use Safari. It was measured on this project and rejected: three consecutive runs of the
+system suite gave 0 / 11 / 3 failures out of 13 under `SYSTEM_TEST_BROWSER=safari`, against 0
+failures every time under headless Chrome. The flakiness is `safaridriver` mishandling form input
+(the password ends up appended to the email field), not application code, and Safari has no
+headless mode. Do not try to paper over it with retry helpers around `fill_in` — that was tried and
+made the suite fail deterministically in Chrome too.
 
 <!-- ASTRYX:START -->
 Astryx v0.1.8 · 153 components
