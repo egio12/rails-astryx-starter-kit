@@ -54,7 +54,8 @@ export default function Sessions({ sessions }: SessionsProps) {
                         IP: {session.ip_address}
                       </Text>
                       <Text type="supporting" as="p">
-                        Active since: {new Date(session.created_at).toLocaleString()}
+                        Active since:{" "}
+                        {new Date(session.created_at).toLocaleString()}
                       </Text>
                     </VStack>
                   }

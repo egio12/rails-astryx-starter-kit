@@ -17,11 +17,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   },
 ]
 
-const starterWidgets = [
-  "Workspace overview",
-  "Recent activity",
-  "Next steps",
-]
+const starterWidgets = ["Workspace overview", "Recent activity", "Next steps"]
 
 export default function Dashboard() {
   return (
