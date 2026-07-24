@@ -1,10 +1,6 @@
-import { HStack } from "@astryxdesign/core/Layout"
-import { MobileNavToggle } from "@astryxdesign/core/MobileNav"
-import { TopNav } from "@astryxdesign/core/TopNav"
-import { usePage } from "@inertiajs/react"
+import { Toolbar } from "@astryxdesign/core/Toolbar"
 
 import { Breadcrumbs } from "@/components/breadcrumbs"
-import { UserMenuContent } from "@/components/user-menu-content"
 import type { BreadcrumbItem } from "@/types"
 
 interface AppHeaderProps {
@@ -12,18 +8,14 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
-  const { auth } = usePage().props
+  if (breadcrumbs.length === 0) return null
 
   return (
-    <TopNav
-      label="Application navigation"
-      heading={
-        <HStack gap={2} align="center">
-          <MobileNavToggle label="Open navigation" />
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
-        </HStack>
-      }
-      endContent={<UserMenuContent auth={auth} />}
+    <Toolbar
+      label="Page context"
+      size="sm"
+      dividers={["bottom"]}
+      startContent={<Breadcrumbs breadcrumbs={breadcrumbs} />}
     />
   )
 }

@@ -12,13 +12,44 @@ RSpec.describe "Astryx UI", type: :system do
     click_on "Log in"
   end
 
-  it "renders the authenticated Astryx application frame" do
+  it "renders the authenticated side-nav-only application frame" do
     sign_in_as users(:one)
+    page.execute_script("localStorage.removeItem('sidebar')")
+    visit dashboard_path
 
     expect(page).to have_css(".astryx-app-shell")
     expect(page).to have_css(".astryx-side-nav")
+    expect(page).to have_no_css(".astryx-top-nav")
     expect(page).to have_css('[role="main"]')
-    expect(page).to have_text("Dashboard")
+    expect(page).to have_css(".astryx-breadcrumbs")
+
+    within(".astryx-side-nav") do
+      expect(page).to have_button(users(:one).name, enable_aria_label: true)
+      click_on "Collapse navigation", enable_aria_label: true
+      expect(page).to have_button(users(:one).name, enable_aria_label: true)
+    end
+
+    expect(
+      page.evaluate_script("localStorage.getItem('sidebar')"),
+    ).to eq("false")
+  end
+
+  it "uses the shared side navigation in Astryx's mobile drawer" do
+    sign_in_as users(:one)
+    page.current_window.resize_to(767, 900)
+    visit settings_profile_path
+
+    click_on "Open navigation", enable_aria_label: true
+
+    expect(page).to have_css(".astryx-mobile-nav")
+    expect(page).to have_link("Dashboard", href: dashboard_path)
+    expect(page).to have_button(users(:one).name, enable_aria_label: true)
+
+    click_link "Dashboard", href: dashboard_path
+
+    expect(page).to have_current_path(dashboard_path)
+  ensure
+    page.current_window.resize_to(1400, 900)
   end
 
   it "renders public and authentication routes with Astryx controls" do

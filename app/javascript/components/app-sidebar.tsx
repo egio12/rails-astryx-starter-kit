@@ -1,16 +1,24 @@
-import { SideNav } from "@astryxdesign/core/SideNav"
+import { Icon } from "@astryxdesign/core/Icon"
+import { NavIcon } from "@astryxdesign/core/NavIcon"
+import {
+  SideNav,
+  SideNavCollapseButton,
+  SideNavHeading,
+} from "@astryxdesign/core/SideNav"
+import { usePage } from "@inertiajs/react"
 import { useState } from "react"
 
-import AppLogo from "@/components/app-logo"
+import AppLogoIcon from "@/components/app-logo-icon"
 import {
   PrimaryNavigation,
   ResourceNavigation,
 } from "@/components/app-navigation"
-import { AppLink } from "@/components/inertia-link"
+import { UserMenuContent } from "@/components/user-menu-content"
 import * as storage from "@/lib/storage"
 import { dashboard } from "@/routes"
 
 export function AppSidebar() {
+  const { auth } = usePage().props
   const [isCollapsed, setIsCollapsed] = useState(
     () => storage.getItem("sidebar") === "false",
   )
@@ -23,18 +31,26 @@ export function AppSidebar() {
   return (
     <SideNav
       header={
-        <AppLink href={dashboard.index().url} aria-label="Dashboard">
-          <AppLogo />
-        </AppLink>
+        <SideNavHeading
+          icon={<NavIcon icon={<Icon icon={AppLogoIcon} size="sm" />} />}
+          heading={import.meta.env.VITE_APP_NAME ?? "React Starter Kit"}
+          headingHref={dashboard.index().url}
+        />
       }
-      footer={<ResourceNavigation />}
+      footerIcons={
+        <>
+          <SideNavCollapseButton label="Collapse navigation" />
+          <UserMenuContent auth={auth} />
+        </>
+      }
       collapsible={{
         isCollapsed,
         onCollapsedChange: handleCollapsedChange,
-        buttonLabel: "Collapse navigation",
+        hasButton: false,
       }}
     >
       <PrimaryNavigation />
+      <ResourceNavigation />
     </SideNav>
   )
 }
