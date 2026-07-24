@@ -10,7 +10,9 @@
 
 ## Global Constraints
 
-- Use `@astryxdesign/core`, `@astryxdesign/theme-neutral`, and `@astryxdesign/cli` at version `0.1.8`.
+- Start from the installed compatible Astryx package set. Do not assert exact
+  dependency versions in application tests; the lockfile and `npm ls` own
+  dependency integrity and future upgrades remain possible.
 - Query the installed CLI before every Astryx component implementation: `npx astryx component <Name> --json`.
 - Use `Theme` with `neutralTheme` and preserve `light | dark | system`.
 - Preserve all Rails routes, controller behavior, Inertia page props, request payload names, flash data, and form validation.
@@ -39,7 +41,6 @@
 - `app/javascript/lib/astryx.ts`: conversion of Inertia error arrays to Astryx status objects.
 - `app/javascript/layouts/auth-layout.tsx`: the one public authentication frame.
 - `app/javascript/layouts/settings/layout.tsx`: route-driven Astryx settings navigation and content.
-- `spec/frontend/astryx_migration_spec.rb`: static package, CSS, source, and legacy-removal contracts.
 - `spec/system/astryx_ui_spec.rb`: browser coverage for the foundation, shell, theme, routes, and responsive behavior.
 
 ---
@@ -47,7 +48,6 @@
 ### Task 1: Establish the Astryx CSS and Package Foundation
 
 **Files:**
-- Create: `spec/frontend/astryx_migration_spec.rb`
 - Modify: `package.json`
 - Modify: `package-lock.json`
 - Modify: `app/javascript/entrypoints/application.css`
@@ -55,7 +55,7 @@
 
 **Interfaces:**
 - Consumes: the already installed Astryx 0.1.8 packages.
-- Produces: `npm run build`, canonical Astryx CSS layers, and static setup assertions used by later tasks.
+- Produces: `npm run build` and canonical Astryx CSS layers.
 
 - [ ] **Step 1: Refresh the installed setup documentation**
 
@@ -69,59 +69,7 @@ npx astryx docs styling --dense
 
 Expected: each command exits `0` and describes the Tailwind v4 layer order, pre-built neutral theme, and token-backed utility rules.
 
-- [ ] **Step 2: Write the failing package and cascade contract**
-
-Create `spec/frontend/astryx_migration_spec.rb`:
-
-```ruby
-# frozen_string_literal: true
-
-require "json"
-require "pathname"
-
-RSpec.describe "Astryx frontend migration" do
-  let(:root) { Pathname.new(__dir__).join("../..").expand_path }
-  let(:package) { JSON.parse(root.join("package.json").read) }
-  let(:css) { root.join("app/javascript/entrypoints/application.css").read }
-
-  it "pins the Astryx runtime and development packages" do
-    expect(package.dig("dependencies", "@astryxdesign/core")).to eq("^0.1.8")
-    expect(package.dig("dependencies", "@astryxdesign/theme-neutral")).to eq("^0.1.8")
-    expect(package.dig("devDependencies", "@astryxdesign/cli")).to eq("^0.1.8")
-  end
-
-  it "loads the Astryx styles in canonical cascade order" do
-    imports = [
-      '@import "tailwindcss/theme.css" layer(theme);',
-      '@import "tailwindcss/preflight.css" layer(base);',
-      '@import "@astryxdesign/core/reset.css";',
-      '@import "@astryxdesign/core/astryx.css";',
-      '@import "@astryxdesign/theme-neutral/theme.css";',
-      '@import "@astryxdesign/core/tailwind-theme.css";',
-      '@import "tailwindcss/utilities.css" layer(utilities);'
-    ]
-
-    positions = imports.map { |statement| css.index(statement) }
-    expect(positions).to all(be_a(Integer))
-    expect(positions).to eq(positions.sort)
-    expect(css).to start_with(
-      "@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;"
-    )
-  end
-end
-```
-
-- [ ] **Step 3: Run the focused contract and confirm the CSS example fails**
-
-Run:
-
-```bash
-bin/rspec spec/frontend/astryx_migration_spec.rb
-```
-
-Expected: the package example passes; the cascade-order example fails because the stylesheet still contains the shadcn import and token definitions.
-
-- [ ] **Step 4: Replace the global stylesheet and add a build script**
+- [ ] **Step 2: Replace the global stylesheet and add a build script**
 
 Replace `app/javascript/entrypoints/application.css` with:
 
@@ -143,7 +91,8 @@ Add the production build script to `package.json`:
 "build": "vite build"
 ```
 
-Keep these exact dependency placements:
+Keep the runtime packages in `dependencies` and the CLI in `devDependencies`;
+do not encode their exact versions in RSpec:
 
 ```json
 "dependencies": {
@@ -157,22 +106,24 @@ Keep these exact dependency placements:
 
 Run `npm install` once to keep `package-lock.json` synchronized.
 
-- [ ] **Step 5: Verify the foundation**
+- [ ] **Step 3: Verify the foundation**
 
 Run:
 
 ```bash
-bin/rspec spec/frontend/astryx_migration_spec.rb
+npm ls @astryxdesign/core @astryxdesign/theme-neutral @astryxdesign/cli --depth=0
 npm run check
 npm run build
 ```
 
-Expected: `2 examples, 0 failures`; TypeScript exits `0`; Vite completes a production build.
+Expected: npm reports a valid installed Astryx tree; TypeScript exits `0`; Vite
+completes a production build. CSS behavior is covered later by the browser
+foundation check against computed styles, not by source-string assertions.
 
-- [ ] **Step 6: Commit the foundation**
+- [ ] **Step 4: Commit the foundation**
 
 ```bash
-git add AGENTS.md package.json package-lock.json app/javascript/entrypoints/application.css spec/frontend/astryx_migration_spec.rb
+git add AGENTS.md package.json package-lock.json app/javascript/entrypoints/application.css
 git commit -m "build: configure Astryx foundation"
 ```
 
@@ -185,7 +136,6 @@ git commit -m "build: configure Astryx foundation"
 - Modify: `app/javascript/hooks/use-flash.tsx`
 - Modify: `app/javascript/layouts/persistent-layout.tsx`
 - Modify: `app/javascript/entrypoints/inertia.tsx`
-- Modify: `spec/frontend/astryx_migration_spec.rb`
 
 **Interfaces:**
 - Consumes: `Appearance = "light" | "dark" | "system"`, Rails `FlashData`, Inertia `Link`, `neutralTheme`.
@@ -203,37 +153,7 @@ npx astryx hook useToast --json
 
 Expected: `Theme` accepts `theme`, `mode`, and `children`; `LinkProvider` accepts `component`; `useToast` returns `showToast(options)`.
 
-- [ ] **Step 2: Add failing provider source contracts**
-
-Append to `spec/frontend/astryx_migration_spec.rb`:
-
-```ruby
-it "mounts the neutral Astryx theme and Inertia link provider" do
-  provider = root.join("app/javascript/providers/astryx-provider.tsx").read
-  expect(provider).to include('from "@astryxdesign/core/theme"')
-  expect(provider).to include('from "@astryxdesign/theme-neutral/built"')
-  expect(provider).to include("<LinkProvider component={AppLink}>")
-  expect(provider).to include("<Theme theme={neutralTheme} mode={appearance}>")
-end
-
-it "uses Astryx rather than Sonner for Rails flash messages" do
-  flash_hook = root.join("app/javascript/hooks/use-flash.tsx").read
-  expect(flash_hook).to include('from "@astryxdesign/core/Toast"')
-  expect(flash_hook).not_to include('from "sonner"')
-end
-```
-
-- [ ] **Step 3: Run the focused contracts and confirm both fail**
-
-Run:
-
-```bash
-bin/rspec spec/frontend/astryx_migration_spec.rb
-```
-
-Expected: two new failures because the provider does not exist and `use-flash.tsx` imports Sonner.
-
-- [ ] **Step 4: Convert appearance state into a shared context**
+- [ ] **Step 2: Convert appearance state into a shared context**
 
 Implement `app/javascript/hooks/use-appearance.tsx` around this exact public contract:
 
@@ -278,7 +198,7 @@ export function useAppearance() {
 
 Keep `initializeTheme()` as the pre-mount call from `inertia.tsx`, but restrict it to reading the saved preference and setting `document.documentElement.style.colorScheme`. Store explicit `light` and `dark`; remove the storage key for `system`.
 
-- [ ] **Step 5: Implement the route-aware link adapter**
+- [ ] **Step 3: Implement the route-aware link adapter**
 
 Create `app/javascript/components/inertia-link.tsx`:
 
@@ -309,7 +229,7 @@ This is routing infrastructure, not a UI compatibility wrapper. It preserves
 native browser behavior for external documentation/repository links and lets
 Astryx navigation use Inertia for internal URLs.
 
-- [ ] **Step 6: Implement the root provider and Astryx flash bridge**
+- [ ] **Step 4: Implement the root provider and Astryx flash bridge**
 
 Create `app/javascript/providers/astryx-provider.tsx`:
 
@@ -369,23 +289,24 @@ export default function PersistentLayout({ children }: PropsWithChildren) {
 }
 ```
 
-- [ ] **Step 7: Verify provider behavior**
+- [ ] **Step 5: Verify provider behavior**
 
 Run:
 
 ```bash
-bin/rspec spec/frontend/astryx_migration_spec.rb
 npm run check
 npm run lint
 npm run build
 ```
 
-Expected: frontend contracts pass and all three npm commands exit `0`.
+Expected: all three npm commands exit `0`. Runtime provider, theme, link, and
+toast behavior is exercised by system specs once the first Astryx route is
+rendered.
 
-- [ ] **Step 8: Commit the root integration**
+- [ ] **Step 6: Commit the root integration**
 
 ```bash
-git add app/javascript/components/inertia-link.tsx app/javascript/providers/astryx-provider.tsx app/javascript/hooks/use-appearance.tsx app/javascript/hooks/use-flash.tsx app/javascript/layouts/persistent-layout.tsx app/javascript/entrypoints/inertia.tsx spec/frontend/astryx_migration_spec.rb
+git add app/javascript/components/inertia-link.tsx app/javascript/providers/astryx-provider.tsx app/javascript/hooks/use-appearance.tsx app/javascript/hooks/use-flash.tsx app/javascript/layouts/persistent-layout.tsx app/javascript/entrypoints/inertia.tsx
 git commit -m "feat: add Astryx root providers"
 ```
 
@@ -1281,75 +1202,13 @@ git commit -m "feat: convert dashboard and sessions to Astryx"
 - Delete if unused: `app/javascript/hooks/use-initials.tsx`
 - Modify: `package.json`
 - Modify: `package-lock.json`
-- Modify: `spec/frontend/astryx_migration_spec.rb`
 - Modify: all remaining files reported by the legacy scans
 
 **Interfaces:**
 - Consumes: fully migrated Astryx call sites from Tasks 2–7.
 - Produces: no shadcn source/config/imports and a minimal runtime dependency graph.
 
-- [ ] **Step 1: Add the failing legacy-removal contract**
-
-Append to `spec/frontend/astryx_migration_spec.rb`:
-
-```ruby
-it "contains no legacy shadcn or Radix frontend" do
-  source_files = root.glob("app/javascript/**/*.{ts,tsx,css}")
-  forbidden = [
-    %r{@/components/ui},
-    %r{from "radix-ui"},
-    %r{from "sonner"},
-    %r{from "@headlessui/react"},
-    %r{class-variance-authority},
-    %r{from "clsx"},
-    %r{tailwind-merge},
-    %r{tw-animate-css},
-    %r{@apply},
-    %r{style=\{\{}
-  ]
-
-  matches = source_files.flat_map do |file|
-    file.readlines.filter_map.with_index(1) do |line, number|
-      "#{file.relative_path_from(root)}:#{number}:#{line.strip}" if forbidden.any? { |pattern| line.match?(pattern) }
-    end
-  end
-
-  expect(matches).to eq([])
-  expect(root.join("components.json")).not_to exist
-  expect(root.join("app/javascript/components/ui")).not_to exist
-end
-
-it "removes packages that only supported the legacy UI layer" do
-  all_dependencies = package.fetch("dependencies", {}).merge(
-    package.fetch("devDependencies", {})
-  )
-
-  expect(all_dependencies.keys).not_to include(
-    "radix-ui",
-    "sonner",
-    "next-themes",
-    "class-variance-authority",
-    "tailwind-merge",
-    "tw-animate-css",
-    "@headlessui/react",
-    "clsx",
-    "@tailwindcss/forms",
-    "@tailwindcss/typography"
-  )
-end
-```
-
-- [ ] **Step 2: Run the focused contract and confirm it fails**
-
-Run:
-
-```bash
-bin/rspec spec/frontend/astryx_migration_spec.rb
-```
-
-Expected: failures list the remaining UI directory, config, imports, and legacy packages.
-
-- [ ] **Step 3: Remove all legacy files and imports**
+- [ ] **Step 1: Remove all legacy files and imports**
 
 Delete `components.json` and every file under `app/javascript/components/ui`.
 Run:
@@ -1365,7 +1224,7 @@ Delete `lib/utils.ts`, `components/alert-error.tsx`, `components/icon.tsx`, and
 remaining raw layout containers with Astryx `VStack`, `HStack`, `Grid`,
 `Layout`, `Section`, or `StackItem`.
 
-- [ ] **Step 4: Remove unused packages and normalize dependency placement**
+- [ ] **Step 2: Remove unused packages and normalize dependency placement**
 
 Run:
 
@@ -1381,7 +1240,7 @@ components and the neutral theme depends on the icon library. Run:
 npm dedupe
 ```
 
-- [ ] **Step 5: Run Astryx self-check scans**
+- [ ] **Step 3: Run Astryx self-check scans**
 
 Run:
 
@@ -1394,12 +1253,11 @@ requires inline text and the element does not perform layout. Replace all raw
 layout elements, raw colors, arbitrary values, inline styles, and unsupported
 class overrides.
 
-- [ ] **Step 6: Verify cleanup**
+- [ ] **Step 4: Verify cleanup**
 
 Run:
 
 ```bash
-bin/rspec spec/frontend/astryx_migration_spec.rb
 npm run check
 npm run lint
 npm run format
@@ -1407,12 +1265,14 @@ npm run build
 npm ls @astryxdesign/core @astryxdesign/theme-neutral @astryxdesign/cli --depth=0
 ```
 
-Expected: frontend spec has zero failures; all npm scripts exit `0`; all three Astryx packages report `0.1.8`.
+Expected: all npm scripts exit `0`; `npm ls` reports a valid installed Astryx
+dependency tree. The preceding zero-match scans are the explicit migration
+audit and do not become brittle source-string RSpec examples.
 
-- [ ] **Step 7: Commit legacy removal**
+- [ ] **Step 5: Commit legacy removal**
 
 ```bash
-git add package.json package-lock.json components.json app/javascript spec/frontend/astryx_migration_spec.rb
+git add package.json package-lock.json components.json app/javascript
 git commit -m "refactor!: remove shadcn UI layer"
 ```
 
@@ -1420,7 +1280,6 @@ git commit -m "refactor!: remove shadcn UI layer"
 
 **Files:**
 - Modify if verification exposes defects: only the Astryx migration files listed in Tasks 1–8.
-- Test: `spec/frontend/astryx_migration_spec.rb`
 - Test: `spec/system/astryx_ui_spec.rb`
 - Test: existing `spec/requests/` and `spec/system/sessions_spec.rb`
 
