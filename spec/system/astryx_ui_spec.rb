@@ -39,6 +39,7 @@ RSpec.describe "Astryx UI", type: :system do
     sign_in_as users(:one)
     visit settings_appearance_path
 
+    expect(page).to have_css("h1", text: "Appearance settings")
     expect(page).to have_css(".astryx-segmented-control")
 
     click_on "Dark"
@@ -52,5 +53,22 @@ RSpec.describe "Astryx UI", type: :system do
 
     click_on "System"
     expect(page.evaluate_script("localStorage.getItem('appearance')")).to be_nil
+  end
+
+  it "returns from mobile settings navigation to the selected detail" do
+    sign_in_as users(:one)
+    page.current_window.resize_to(767, 900)
+    visit settings_appearance_path
+
+    click_on "All settings"
+    expect(page).to have_text("Account settings")
+
+    find_link("Profile", href: settings_profile_path).click
+
+    expect(page).to have_current_path(settings_profile_path)
+    expect(page).to have_button("All settings")
+    expect(page).to have_no_text("Account settings")
+  ensure
+    page.current_window.resize_to(1400, 900)
   end
 end

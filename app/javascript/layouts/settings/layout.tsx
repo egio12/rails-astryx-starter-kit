@@ -1,4 +1,5 @@
 import { Button } from "@astryxdesign/core/Button"
+import { Heading } from "@astryxdesign/core/Heading"
 import { Icon } from "@astryxdesign/core/Icon"
 import {
   Layout,
@@ -15,7 +16,6 @@ import { usePage } from "@inertiajs/react"
 import { ArrowLeft } from "lucide-react"
 import { type PropsWithChildren, useState } from "react"
 
-import { PageHeading } from "@/components/page-heading"
 import {
   settingsAppearance,
   settingsEmails,
@@ -47,14 +47,24 @@ const settingsNavigation = [
   },
 ]
 
-function SettingsNavigation({ onNavigate }: { onNavigate?: () => void }) {
+function SettingsHeading({ level }: { level: 1 | 2 }) {
+  return (
+    <VStack gap={1}>
+      <Heading level={level}>Settings</Heading>
+      <Text type="supporting" as="p">
+        Manage your profile and account settings
+      </Text>
+    </VStack>
+  )
+}
+
+function SettingsNavigation() {
   const { url } = usePage()
 
   return (
     <List
       density="balanced"
       header={<Text type="label">Account settings</Text>}
-      onClick={onNavigate}
     >
       {settingsNavigation.map((item) => (
         <ListItem
@@ -77,13 +87,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
       <Section variant="transparent" padding={4} width="100%">
         {isNavigationVisible ? (
           <VStack gap={4}>
-            <PageHeading
-              title="Settings"
-              description="Manage your profile and account settings"
-            />
-            <SettingsNavigation
-              onNavigate={() => setIsNavigationVisible(false)}
-            />
+            <SettingsHeading level={1} />
+            <SettingsNavigation />
           </VStack>
         ) : (
           <VStack gap={4}>
@@ -120,10 +125,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
           label="Settings"
         >
           <VStack gap={4}>
-            <PageHeading
-              title="Settings"
-              description="Manage your profile and account settings"
-            />
+            <SettingsHeading level={2} />
             <SettingsNavigation />
           </VStack>
         </LayoutPanel>

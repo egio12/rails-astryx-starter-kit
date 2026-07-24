@@ -9,7 +9,7 @@ interface PageHeadingProps {
 export function PageHeading({ title, description }: PageHeadingProps) {
   return (
     <VStack gap={1}>
-      <Heading level={2}>{title}</Heading>
+      <Heading level={1}>{title}</Heading>
       {description && (
         <Text type="supporting" as="p">
           {description}
