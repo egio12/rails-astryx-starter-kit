@@ -78,6 +78,22 @@ RSpec.describe "Sessions", type: :request do
         expect(flash[:alert]).to eq("Too many sign in attempts. Please try again in a few minutes")
       end
     end
+
+    context "when the rate limit window has elapsed" do
+      it "allows sign in again after 3 minutes" do
+        6.times do
+          post sign_in_path, params: { email: users(:one).email, password: "wrongpassword" }
+        end
+        expect(flash[:alert]).to eq("Too many sign in attempts. Please try again in a few minutes")
+
+        travel 4.minutes do
+          post sign_in_path, params: { email: users(:one).email, password: "Secret1*3*5*" }
+
+          expect(response).to redirect_to(dashboard_path)
+          expect(cookies[:session_token]).to be_present
+        end
+      end
+    end
   end
 
   describe "DELETE /sessions/:id" do
