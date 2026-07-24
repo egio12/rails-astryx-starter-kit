@@ -39,7 +39,7 @@ export function AppSidebar() {
       }
       footerIcons={
         <>
-          <SideNavCollapseButton label="Collapse navigation" />
+          <SideNavCollapseButton />
           <UserMenuContent auth={auth} />
         </>
       }

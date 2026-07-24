@@ -22,10 +22,13 @@ RSpec.describe "Astryx UI", type: :system do
     expect(page).to have_no_css(".astryx-top-nav")
     expect(page).to have_css('[role="main"]')
     expect(page).to have_css(".astryx-breadcrumbs")
+    expect(page).to have_css(".astryx-layout-header")
+    expect(page).to have_no_css('[role="toolbar"]')
 
     within(".astryx-side-nav") do
       expect(page).to have_button(users(:one).name, enable_aria_label: true)
-      click_on "Collapse navigation", enable_aria_label: true
+      click_on "Collapse sidebar", enable_aria_label: true
+      expect(page).to have_button("Expand sidebar", enable_aria_label: true)
       expect(page).to have_button(users(:one).name, enable_aria_label: true)
     end
 
