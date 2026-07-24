@@ -2,6 +2,55 @@
 
 Project-specific guidance for AI coding agents.
 
+## Non-negotiable rules
+
+These rules override convenience, speed, and your own recollection. They apply to every task.
+
+### 1. Documentation first — always, before writing anything
+
+Before you start any task that touches a library, framework, gem, or API, you MUST read the
+official documentation for the exact version in use. Never work from memory: your training data
+is stale, and this project pins recent versions (Rails 8.1, Ruby 4.0, React 19, TypeScript 6,
+Vite 8, Tailwind 4, Inertia, Astryx).
+
+- If the Context7 MCP server is available, use it first:
+  `resolve-library-id` → `query-docs`. Prefer it over web search for library documentation.
+- If Context7 is unavailable, fetch the official documentation site directly. Blog posts,
+  Stack Overflow answers, and AI-generated summaries are not sources — they are hints that
+  must be confirmed against official docs.
+- Astryx is the exception in mechanism only: its source of truth is the installed CLI
+  (`npx astryx component <Name>`, `npx astryx docs <topic>`) — see the Astryx section below.
+- State in your response which documentation you consulted. If you could not consult any,
+  say so explicitly instead of guessing.
+
+### 2. Never write workaround code
+
+Do not write a workaround, a patch-over, a hack, a monkey patch, a `rescue` that swallows the
+problem, a hardcoded value that dodges the real path, a disabled test, or a "temporary" shim.
+
+**99% of the time an official, supported solution exists.** Your job is to find it, not to route
+around it. Framework-supported APIs, documented configuration, and official extension points are
+always preferred over anything you invent.
+
+If, after actually reading the official documentation, you are convinced no supported solution
+exists: stop and report that to the user with what you checked and what you found. Do not
+implement the workaround unilaterally. If the user then explicitly asks for one, implement it and
+mark it in the code with a comment stating what is missing upstream and why the workaround exists.
+
+### 3. Every bug goes through systematic debugging
+
+The moment you hit a bug, a failing test, or any unexpected behavior, invoke the
+`superpowers:systematic-debugging` skill **before** proposing or writing a fix. No guess-and-check,
+no shotgun edits, no "let me try changing this."
+
+Then apply rule 1 again: verify the intended behavior against the official documentation before
+writing the fix. Most bugs are a misused API, not a broken one.
+
+### 4. Verify, don't claim
+
+Never state that something works, is fixed, or passes without having run the command and read its
+output. Use `superpowers:verification-before-completion` before claiming any work is complete.
+
 <!-- ASTRYX:START -->
 Astryx v0.1.8 · 153 components
 CLI: run every command as `npx astryx <cmd>` (shown below as `astryx ...`).
