@@ -19,6 +19,7 @@ end
 
 RSpec.configure do |config|
   system_test_browser = ENV.fetch("SYSTEM_TEST_BROWSER", "headless_chrome").to_sym
+  Capybara.default_set_options = { clear: :backspace }
 
   config.fixture_paths = [ Rails.root.join("spec/fixtures") ]
   config.use_transactional_fixtures = true

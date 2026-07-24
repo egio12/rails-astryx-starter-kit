@@ -10,6 +10,7 @@ RSpec.describe "Astryx UI", type: :system do
     fill_in "Email address", with: user.email
     fill_in "Password", with: "Secret1*3*5*"
     click_on "Log in"
+    expect(page).to have_current_path(dashboard_path)
   end
 
   it "renders the authenticated side-nav-only application frame" do
