@@ -29,6 +29,8 @@ class SessionsController < InertiaController
   end
 
   def destroy
+    authorize! @session, to: :destroy?
+
     @session.destroy!
     Current.session = nil
     redirect_to settings_sessions_path, notice: "That session has been logged out", inertia: { clear_history: true }
@@ -36,8 +38,10 @@ class SessionsController < InertiaController
 
   private
 
+  # Scoping the lookup keeps another user's session id a 404 rather than a 403,
+  # while `authorize!` in the action still enforces the rule explicitly.
   def set_session
-    @session = Current.user.sessions.find(params[:id])
+    @session = authorized_scope(Session.all).find(params[:id])
   end
 
   def rate_limit_exceeded

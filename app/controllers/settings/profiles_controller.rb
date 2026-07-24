@@ -7,6 +7,8 @@ class Settings::ProfilesController < InertiaController
   end
 
   def update
+    authorize! @user, to: :update?
+
     if @user.update(user_params)
       redirect_to settings_profile_path, notice: "Your profile has been updated"
     else

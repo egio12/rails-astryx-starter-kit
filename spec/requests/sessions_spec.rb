@@ -104,5 +104,15 @@ RSpec.describe "Sessions", type: :request do
       expect(response).to redirect_to(settings_sessions_path)
       expect(Session.exists?(session_record.id)).to be(false)
     end
+
+    it "does not destroy a session belonging to another user" do
+      sign_in users(:one)
+      other_session = users(:two).sessions.create!
+
+      delete session_path(other_session)
+
+      expect(response).to have_http_status(:not_found)
+      expect(Session.exists?(other_session.id)).to be(true)
+    end
   end
 end

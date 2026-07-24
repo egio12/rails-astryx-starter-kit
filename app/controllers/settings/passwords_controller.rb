@@ -7,6 +7,8 @@ class Settings::PasswordsController < InertiaController
   end
 
   def update
+    authorize! @user, to: :update?
+
     if @user.update(user_params)
       redirect_to settings_password_path, notice: "Your password has been changed"
     else

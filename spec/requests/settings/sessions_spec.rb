@@ -21,7 +21,22 @@ RSpec.describe "Settings::Sessions", type: :request do
       expect(inertia).to render_component "settings/sessions/index"
       expect(inertia.props[:sessions].size).to eq(user.sessions.count)
       expect(inertia.props[:sessions].first.keys)
-        .to match_array(%w[id user_agent ip_address created_at])
+        .to match_array(%w[id user_agent ip_address created_at can_destroy])
+    end
+
+    it "exposes the SessionPolicy verdict to the client" do
+      get settings_sessions_path
+
+      expect(inertia.props[:sessions]).to all(include("can_destroy" => true))
+    end
+
+    it "never serializes another user's sessions" do
+      users(:two).sessions.create!
+
+      get settings_sessions_path
+
+      expect(inertia.props[:sessions].map { |s| s["id"] })
+        .to match_array(user.sessions.pluck(:id))
     end
 
     it "shares the authenticated user through the shared props serializer" do

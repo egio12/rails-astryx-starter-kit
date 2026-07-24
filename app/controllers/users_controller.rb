@@ -24,6 +24,8 @@ class UsersController < InertiaController
 
   def destroy
     user = Current.user
+    authorize! user, to: :destroy?
+
     if user.authenticate(params[:password_challenge] || "")
       user.destroy!
       Current.session = nil

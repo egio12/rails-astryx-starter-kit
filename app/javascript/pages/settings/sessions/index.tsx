@@ -108,13 +108,21 @@ export default function Sessions({
       width: pixel(160),
       align: "end",
       resizable: false,
-      renderCell: (session) =>
-        session.id === auth.session.id ? (
-          <HStack gap={1} vAlign="center" hAlign="end">
-            <StatusDot variant="success" label="Current session" />
-            <Text type="supporting">Current</Text>
-          </HStack>
-        ) : (
+      renderCell: (session) => {
+        if (session.id === auth.session.id) {
+          return (
+            <HStack gap={1} vAlign="center" hAlign="end">
+              <StatusDot variant="success" label="Current session" />
+              <Text type="supporting">Current</Text>
+            </HStack>
+          )
+        }
+
+        // `can_destroy` mirrors SessionPolicy#destroy? — the server decides,
+        // the table only reflects the decision.
+        if (!session.can_destroy) return null
+
+        return (
           <Button
             label="Log out"
             variant="destructive"
@@ -123,7 +131,8 @@ export default function Sessions({
               router.delete(sessionsRoutes.destroy(session.id).url)
             }
           />
-        ),
+        )
+      },
     },
   ]
 

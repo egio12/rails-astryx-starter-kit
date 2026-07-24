@@ -7,6 +7,8 @@ class Settings::EmailsController < InertiaController
   end
 
   def update
+    authorize! @user, to: :update?
+
     if @user.update(user_params)
       redirect_to_success
     else

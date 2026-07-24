@@ -8,6 +8,8 @@ class Settings::SessionsController < InertiaController
     @sort_key = SORT_COLUMNS.include?(params[:sort]) ? params[:sort] : DEFAULT_SORT_COLUMN
     @sort_direction = (params[:direction] == "asc") ? "asc" : "desc"
 
-    @pagy, @sessions = pagy(:offset, Current.user.sessions.order(@sort_key => @sort_direction))
+    sessions = authorized_scope(Session.all).order(@sort_key => @sort_direction)
+
+    @pagy, @sessions = pagy(:offset, sessions)
   end
 end

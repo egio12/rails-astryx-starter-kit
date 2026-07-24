@@ -55,6 +55,9 @@ gem "alba-inertia"
 # Pagination [https://ddnexus.github.io/pagy]
 gem "pagy", "~> 43.6"
 
+# Authorization policies [https://actionpolicy.evilmartians.io]
+gem "action_policy"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
