@@ -89,6 +89,18 @@ RSpec.describe "Astryx UI", type: :system do
     expect(page.evaluate_script("localStorage.getItem('appearance')")).to be_nil
   end
 
+  it "navigates when the settings list row chrome is clicked" do
+    sign_in_as users(:one)
+    visit settings_appearance_path
+
+    email_row = find("li", text: "Email", exact_text: true)
+    expect(email_row).to have_link("Email", href: settings_email_path)
+
+    page.execute_script("arguments[0].click()", email_row)
+
+    expect(page).to have_current_path(settings_email_path)
+  end
+
   it "returns from mobile settings navigation to the selected detail" do
     sign_in_as users(:one)
     page.current_window.resize_to(767, 900)

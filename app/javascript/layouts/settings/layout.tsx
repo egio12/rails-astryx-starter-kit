@@ -12,7 +12,7 @@ import { Section } from "@astryxdesign/core/Section"
 import { Text } from "@astryxdesign/core/Text"
 import { Toolbar } from "@astryxdesign/core/Toolbar"
 import { useMediaQuery } from "@astryxdesign/core/hooks"
-import { usePage } from "@inertiajs/react"
+import { router, usePage } from "@inertiajs/react"
 import { ArrowLeft } from "lucide-react"
 import { type PropsWithChildren, useState } from "react"
 
@@ -72,6 +72,7 @@ function SettingsNavigation() {
           label={item.label}
           href={item.href}
           isSelected={url === item.href}
+          onClick={() => router.visit(item.href)}
         />
       ))}
     </List>
