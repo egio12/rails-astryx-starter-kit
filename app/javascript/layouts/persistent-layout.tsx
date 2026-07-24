@@ -1,18 +1,7 @@
-import type { ReactNode } from "react"
+import type { PropsWithChildren } from "react"
 
-import { Toaster } from "@/components/ui/sonner"
-import { useFlash } from "@/hooks/use-flash"
+import { AstryxProvider } from "@/providers/astryx-provider"
 
-interface PersistentLayoutProps {
-  children: ReactNode
-}
-
-export default function PersistentLayout({ children }: PersistentLayoutProps) {
-  useFlash()
-  return (
-    <>
-      {children}
-      <Toaster richColors />
-    </>
-  )
+export default function PersistentLayout({ children }: PropsWithChildren) {
+  return <AstryxProvider>{children}</AstryxProvider>
 }

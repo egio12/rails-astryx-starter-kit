@@ -5,6 +5,8 @@ import PersistentLayout from "@/layouts/persistent-layout"
 
 const appName = import.meta.env.VITE_APP_NAME ?? "React Starter Kit"
 
+initializeTheme()
+
 void createInertiaApp({
   title: (title) => (title ? `${title} - ${appName}` : appName),
   strictMode: true,
@@ -20,7 +22,7 @@ void createInertiaApp({
     }),
   },
   progress: {
-    color: "#4B5563",
+    color: "var(--color-accent)",
   },
 }).catch((error) => {
   // This ensures this entrypoint is only loaded on Inertia pages
@@ -36,6 +38,3 @@ void createInertiaApp({
     )
   }
 })
-
-// This will set light / dark mode on load...
-initializeTheme()
