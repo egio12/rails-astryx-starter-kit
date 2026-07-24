@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "vite build",
     "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
     "lint": "eslint '*.{js,mjs,cjs,ts}' app/javascript/ --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint '*.{js,mjs,cjs,ts}' app/javascript/ --fix",
