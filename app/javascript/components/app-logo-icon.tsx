@@ -1,6 +1,6 @@
-import type { SVGAttributes } from "react"
+import type { SVGProps } from "react"
 
-export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
+export default function AppLogoIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       height="32"

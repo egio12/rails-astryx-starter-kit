@@ -4,10 +4,7 @@ import { neutralTheme } from "@astryxdesign/theme-neutral/built"
 import type { PropsWithChildren } from "react"
 
 import { AppLink } from "@/components/inertia-link"
-import {
-  AppearanceProvider,
-  useAppearance,
-} from "@/hooks/use-appearance"
+import { AppearanceProvider, useAppearance } from "@/hooks/use-appearance"
 import { useFlash } from "@/hooks/use-flash"
 
 function ThemedApplication({ children }: PropsWithChildren) {

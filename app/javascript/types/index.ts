@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react"
+import type { IconType } from "@astryxdesign/core/Icon"
 
 export interface Auth {
   user: User
@@ -13,7 +13,7 @@ export interface BreadcrumbItem {
 export interface NavItem {
   title: string
   href: string
-  icon?: LucideIcon | null
+  icon?: IconType | null
   isActive?: boolean
 }
 

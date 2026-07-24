@@ -30,10 +30,7 @@ type AppLinkProps = Pick<
 const browserOwnedDestination = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i
 
 export const AppLink = forwardRef<HTMLAnchorElement, AppLinkProps>(
-  function AppLink(
-    { href = "", download, children, ...props },
-    ref,
-  ) {
+  function AppLink({ href = "", download, children, ...props }, ref) {
     const destination = href.toString()
     const isBrowserOwned =
       browserOwnedDestination.test(destination) || Boolean(download)

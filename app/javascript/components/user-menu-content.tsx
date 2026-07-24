@@ -1,14 +1,8 @@
-import { Link, router } from "@inertiajs/react"
+import { Avatar } from "@astryxdesign/core/Avatar"
+import { DropdownMenu } from "@astryxdesign/core/DropdownMenu"
+import { router } from "@inertiajs/react"
 import { LogOut, Settings } from "lucide-react"
 
-import {
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import { UserInfo } from "@/components/user-info"
-import { useMobileNavigation } from "@/hooks/use-mobile-navigation"
 import { sessions, settingsProfiles } from "@/routes"
 import type { User } from "@/types"
 
@@ -23,47 +17,36 @@ interface UserMenuContentProps {
 
 export function UserMenuContent({ auth }: UserMenuContentProps) {
   const { session, user } = auth
-  const cleanup = useMobileNavigation()
 
   const handleLogout = () => {
-    cleanup()
-    router.flushAll()
+    router.delete(sessions.destroy(session.id).url, {
+      onSuccess: () => router.flushAll(),
+    })
   }
 
   return (
-    <>
-      <DropdownMenuLabel className="p-0 font-normal">
-        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-          <UserInfo user={user} showEmail={true} />
-        </div>
-      </DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuGroup>
-        <DropdownMenuItem asChild>
-          <Link
-            className="block w-full"
-            href={settingsProfiles.show()}
-            as="button"
-            prefetch
-            onClick={cleanup}
-          >
-            <Settings className="mr-2" />
-            Settings
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuGroup>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem asChild>
-        <Link
-          className="block w-full"
-          href={sessions.destroy(session.id)}
-          as="button"
-          onClick={handleLogout}
-        >
-          <LogOut className="mr-2" />
-          Log out
-        </Link>
-      </DropdownMenuItem>
-    </>
+    <DropdownMenu
+      placement="below"
+      menuWidth={224}
+      button={{
+        label: user.name,
+        variant: "ghost",
+        icon: <Avatar src={user.avatar} name={user.name} size="sm" />,
+        isIconOnly: true,
+      }}
+      items={[
+        {
+          label: "Settings",
+          icon: Settings,
+          onClick: () => router.visit(settingsProfiles.show().url),
+        },
+        { type: "divider" },
+        {
+          label: "Log out",
+          icon: LogOut,
+          onClick: handleLogout,
+        },
+      ]}
+    />
   )
 }

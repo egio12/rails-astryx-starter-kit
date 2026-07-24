@@ -4,10 +4,7 @@ import { useEffect } from "react"
 
 import type { FlashData } from "@/types"
 
-function showFlash(
-  flash: FlashData,
-  showToast: ReturnType<typeof useToast>,
-) {
+function showFlash(flash: FlashData, showToast: ReturnType<typeof useToast>) {
   if (flash.alert) {
     showToast({
       body: flash.alert,
