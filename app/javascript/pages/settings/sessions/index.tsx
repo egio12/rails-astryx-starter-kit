@@ -1,8 +1,11 @@
-import { Head, Link, usePage } from "@inertiajs/react"
+import { Button } from "@astryxdesign/core/Button"
+import { HStack, VStack } from "@astryxdesign/core/Layout"
+import { List, ListItem } from "@astryxdesign/core/List"
+import { StatusDot } from "@astryxdesign/core/StatusDot"
+import { Heading, Text } from "@astryxdesign/core/Text"
+import { Head, router, usePage } from "@inertiajs/react"
 
-import HeadingSmall from "@/components/heading-small"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { PageHeading } from "@/components/page-heading"
 import AppLayout from "@/layouts/app-layout"
 import SettingsLayout from "@/layouts/settings/layout"
 import { sessions as sessionsRoutes, settingsSessions } from "@/routes"
@@ -27,51 +30,56 @@ export default function Sessions({ sessions }: SessionsProps) {
       <Head title={breadcrumbs[breadcrumbs.length - 1].title} />
 
       <SettingsLayout>
-        <div className="space-y-6">
-          <HeadingSmall
+        <VStack gap={6}>
+          <PageHeading
             title="Sessions"
             description="Manage your active sessions across devices"
           />
 
-          <div className="space-y-4">
-            {sessions.map((session) => (
-              <div
-                key={session.id}
-                className="flex flex-col space-y-2 rounded-lg border p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="font-medium">
-                      {session.user_agent}
-                      {session.id === auth.session.id && (
-                        <Badge variant="secondary" className="ml-2">
-                          Current
-                        </Badge>
-                      )}
-                    </p>
-                    <p className="text-muted-foreground text-sm">
-                      IP: {session.ip_address}
-                    </p>
-                    <p className="text-muted-foreground text-sm">
-                      Active since:{" "}
-                      {new Date(session.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  {session.id !== auth.session.id && (
-                    <Button variant="destructive" asChild>
-                      <Link
-                        href={sessionsRoutes.destroy(session.id)}
-                        as="button"
-                      >
-                        Log out
-                      </Link>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+          <List
+            hasDividers
+            density="balanced"
+            header={<Heading level={2}>Active sessions</Heading>}
+          >
+            {sessions.map((session) => {
+              const isCurrentSession = session.id === auth.session.id
+
+              return (
+                <ListItem
+                  key={session.id}
+                  label={session.user_agent}
+                  description={
+                    <VStack gap={0.5}>
+                      <Text type="supporting" as="p">
+                        IP: {session.ip_address}
+                      </Text>
+                      <Text type="supporting" as="p">
+                        Active since: {new Date(session.created_at).toLocaleString()}
+                      </Text>
+                    </VStack>
+                  }
+                  endContent={
+                    isCurrentSession ? (
+                      <HStack gap={1} vAlign="center">
+                        <StatusDot variant="success" label="Current session" />
+                        <Text type="supporting">Current</Text>
+                      </HStack>
+                    ) : (
+                      <Button
+                        label="Log out"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() =>
+                          router.delete(sessionsRoutes.destroy(session.id).url)
+                        }
+                      />
+                    )
+                  }
+                />
+              )
+            })}
+          </List>
+        </VStack>
       </SettingsLayout>
     </AppLayout>
   )

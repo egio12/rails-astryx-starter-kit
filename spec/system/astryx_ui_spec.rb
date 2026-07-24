@@ -134,4 +134,33 @@ RSpec.describe "Astryx UI", type: :system do
     visit settings_password_path
     expect(page).to have_css(".astryx-text-input", minimum: 3)
   end
+
+  it "renders dashboard widgets and session management rows" do
+    sign_in_as users(:one)
+
+    visit dashboard_path
+
+    within('[role="main"]') do
+      expect(page).to have_css("h1", text: "Dashboard")
+      expect(page).to have_css("h3", text: "Workspace overview")
+      expect(page).to have_css("h3", text: "Recent activity")
+      expect(page).to have_css("h3", text: "Next steps")
+      expect(page).to have_css("h2", text: "Primary content")
+
+      dashboard_heading_x = find("h1", text: "Dashboard").rect.x
+      starter_widgets_heading_x = find("h2", text: "Starter widgets").rect.x
+      expect(dashboard_heading_x).to be_within(1).of(starter_widgets_heading_x)
+    end
+
+    visit settings_sessions_path
+
+    within('[role="main"]') do
+      expect(page).to have_css("ul[aria-labelledby]", text: "Current")
+      expect(page).to have_text("Current")
+
+      sessions_heading_x = find("h1", text: "Sessions").rect.x
+      active_sessions_heading_x = find("h2", text: "Active sessions").rect.x
+      expect(sessions_heading_x).to be_within(1).of(active_sessions_heading_x)
+    end
+  end
 end
