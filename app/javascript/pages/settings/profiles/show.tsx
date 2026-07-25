@@ -13,6 +13,7 @@ import DeleteUser from "@/components/delete-user"
 import AppLayout from "@/layouts/app-layout"
 import SettingsLayout from "@/layouts/settings/layout"
 import { astryxStatus } from "@/lib/astryx"
+import { useUnsavedChanges } from "@/providers/unsaved-changes-provider"
 import { settingsProfiles } from "@/routes"
 import type { BreadcrumbItem } from "@/types"
 
@@ -38,6 +39,7 @@ export default function Profile() {
     removeAvatar: false,
   })
   const { avatar } = form.data
+  useUnsavedChanges(form.isDirty)
 
   // Derived rather than stored in state: the effect only has to hand the object
   // URL back to the browser once it is no longer on screen.
@@ -51,19 +53,6 @@ export default function Profile() {
 
     return () => URL.revokeObjectURL(preview)
   }, [preview])
-
-  // A picked photo lives only in the browser until Save, and reloading the page
-  // drops it silently. Inertia's client-side visits do not fire this, so the
-  // form's own submit is never intercepted.
-  useEffect(() => {
-    if (!form.isDirty) return
-
-    const confirmLeave = (event: BeforeUnloadEvent) => event.preventDefault()
-
-    window.addEventListener("beforeunload", confirmLeave)
-
-    return () => window.removeEventListener("beforeunload", confirmLeave)
-  }, [form.isDirty])
 
   // The pending upload wins, then the removal the user armed, then what is stored.
   const avatarSrc =

@@ -57,6 +57,46 @@ RSpec.describe "Profile avatar", type: :system do
     expect(user.reload.name).to eq("Renamed User")
   end
 
+  it "keeps a dirty profile in place when navigation is cancelled" do
+    visit settings_profile_path
+    fill_in "Name", with: "Unsaved name"
+
+    dismiss_confirm("You have unsaved changes. Leave this page and discard them?") do
+      find_link("Email", href: settings_email_path).click
+    end
+
+    expect(page).to have_current_path(settings_profile_path)
+    expect(page).to have_field("Name", with: "Unsaved name")
+  end
+
+  it "allows a dirty profile to navigate after confirmation" do
+    visit settings_profile_path
+    fill_in "Name", with: "Unsaved name"
+
+    accept_confirm("You have unsaved changes. Leave this page and discard them?") do
+      find_link("Email", href: settings_email_path).click
+    end
+
+    expect(page).to have_current_path(settings_email_path)
+  end
+
+  it "navigates from a clean profile without confirmation" do
+    visit settings_profile_path
+    find_link("Email", href: settings_email_path).click
+
+    expect(page).to have_current_path(settings_email_path)
+  end
+
+  it "saves a dirty profile without a discard confirmation" do
+    visit settings_profile_path
+    fill_in "Name", with: "Saved without prompting"
+    click_on "Save"
+
+    expect(page).to have_current_path(settings_profile_path)
+    expect(page).to have_text("Your profile has been updated")
+    expect(user.reload.name).to eq("Saved without prompting")
+  end
+
   # The field's own accept filter stops an unsupported format before it ever
   # reaches the form, so there is nothing to submit. The server-side rejection
   # is covered in spec/requests/settings/profiles_spec.rb.
