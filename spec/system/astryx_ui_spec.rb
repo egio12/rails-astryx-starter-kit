@@ -72,16 +72,16 @@ RSpec.describe "Astryx UI", type: :system do
     expect(page).to have_css(".astryx-segmented-control")
 
     click_on "Dark"
-    expect(page.evaluate_script("localStorage.getItem('appearance')")).to eq("dark")
+    expect(page.evaluate_script("document.cookie")).to include("appearance=dark")
     expect(
       page.evaluate_script("document.documentElement.style.colorScheme"),
     ).to eq("dark")
 
     click_on "Light"
-    expect(page.evaluate_script("localStorage.getItem('appearance')")).to eq("light")
+    expect(page.evaluate_script("document.cookie")).to include("appearance=light")
 
     click_on "System"
-    expect(page.evaluate_script("localStorage.getItem('appearance')")).to be_nil
+    expect(page.evaluate_script("document.cookie")).not_to include("appearance=")
   end
 
   it "navigates when the settings list row chrome is clicked" do

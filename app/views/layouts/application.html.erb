@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+<%# data-theme drives color-scheme via Astryx reset.css; rendered server-side to avoid FOUC. %>
+<html<% if appearance_mode %> data-theme="<%= appearance_mode %>"<% end %>>
   <head>
     <title data-inertia><%= content_for(:title) || "React Starter Kit" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -18,15 +19,6 @@
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
-
-    <script>
-      <%# Enable dark mode based on localStorage or system preference. Inline to avoid FOUC. %>
-      document.documentElement.classList.toggle(
-        "dark",
-        localStorage.appearance === "dark" ||
-          (!("appearance" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches),
-      );
-    </script>
 
     <%= vite_tags "application.css", "inertia.tsx" %>
     <%= inertia_ssr_head %>
