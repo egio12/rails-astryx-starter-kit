@@ -97,6 +97,39 @@ RSpec.describe "Profile avatar", type: :system do
     expect(user.reload.name).to eq("Saved without prompting")
   end
 
+  it "revokes every temporary avatar preview URL" do
+    visit settings_profile_path
+    page.execute_script(<<~JS)
+      window.objectUrlMetrics = { created: 0, revoked: 0 }
+      window.originalCreateObjectURL = URL.createObjectURL.bind(URL)
+      window.originalRevokeObjectURL = URL.revokeObjectURL.bind(URL)
+      URL.createObjectURL = (...args) => {
+        window.objectUrlMetrics.created += 1
+        return window.originalCreateObjectURL(...args)
+      }
+      URL.revokeObjectURL = (...args) => {
+        window.objectUrlMetrics.revoked += 1
+        return window.originalRevokeObjectURL(...args)
+      }
+    JS
+
+    attach_avatar
+    click_on "Remove photo"
+
+    metrics = page.evaluate_script("window.objectUrlMetrics")
+    expect(metrics.fetch("created")).to eq(metrics.fetch("revoked"))
+  ensure
+    page.execute_script(<<~JS)
+      if (window.originalCreateObjectURL) {
+        URL.createObjectURL = window.originalCreateObjectURL
+        URL.revokeObjectURL = window.originalRevokeObjectURL
+        delete window.originalCreateObjectURL
+        delete window.originalRevokeObjectURL
+        delete window.objectUrlMetrics
+      }
+    JS
+  end
+
   # The field's own accept filter stops an unsupported format before it ever
   # reaches the form, so there is nothing to submit. The server-side rejection
   # is covered in spec/requests/settings/profiles_spec.rb.

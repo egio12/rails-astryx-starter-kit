@@ -4,7 +4,7 @@
 
 **Goal:** Make Settings form lifecycle, navigation guarding, and deletion submission follow the supported Inertia.js 3.6.1 and React 19.2 patterns.
 
-**Architecture:** A persistent `UnsavedChangesProvider` owns the single Inertia `before` listener and browser `beforeunload` listener. A `useUnsavedChanges` hook registers dirty forms by stable React ID. Avatar object URLs move to a focused effect-backed hook, and account deletion becomes a semantic HTML form.
+**Architecture:** A persistent `UnsavedChangesProvider` owns the single Inertia `before` listener and browser `beforeunload` listener. A `useUnsavedChanges` hook registers dirty forms by stable React ID. Avatar object URLs move to a focused event-driven hook with effect cleanup on unmount, and account deletion becomes a semantic HTML form.
 
 **Tech Stack:** Rails 8.1 system tests with RSpec/Capybara and headless Chrome, React 19.2.8, TypeScript 6, `@inertiajs/react` 3.6.1, Astryx 0.1.8.
 
@@ -250,16 +250,63 @@ git commit -m "feat: guard unsaved inertia forms"
 
 **Files:**
 - Create: `app/javascript/hooks/use-object-url.ts`
+- Create: `test/javascript/use-object-url.test.js`
+- Modify: `package.json`
 - Modify: `app/javascript/pages/settings/profiles/show.tsx`
 - Test: `spec/system/profile_avatar_spec.rb`
 
 **Interfaces:**
-- Produces: `useObjectUrl(file: File | null): string | null`
+- Produces: `useObjectUrl(): readonly [string | null, (file: File | null) => void]`
 - Consumes: the profile form's `avatar: File | null`
 
-- [ ] **Step 1: Add browser instrumentation that exposes leaked object URLs**
+- [ ] **Step 1: Add render-purity and browser lifecycle tests**
 
-Add this example to `spec/system/profile_avatar_spec.rb`:
+Create `test/javascript/use-object-url.test.js`:
+
+```js
+import assert from "node:assert/strict"
+import test from "node:test"
+import { createElement } from "react"
+import { renderToString } from "react-dom/server"
+
+import { useObjectUrl } from "../../app/javascript/hooks/use-object-url.ts"
+
+function ObjectUrlHarness() {
+  const [url] = useObjectUrl()
+  return createElement("output", null, url)
+}
+
+test("does not allocate an object URL during render", () => {
+  const originalCreateObjectURL = URL.createObjectURL
+  let createCalls = 0
+  URL.createObjectURL = () => {
+    createCalls += 1
+    return "blob:test"
+  }
+
+  try {
+    renderToString(createElement(ObjectUrlHarness))
+  } finally {
+    URL.createObjectURL = originalCreateObjectURL
+  }
+
+  assert.equal(createCalls, 0)
+})
+```
+
+Add the following script and include the JavaScript test directory in static
+checks:
+
+```json
+"test:javascript": "node --test test/javascript/use-object-url.test.js",
+"lint": "eslint '*.{js,mjs,cjs,ts}' app/javascript/ test/javascript/ --report-unused-disable-directives --max-warnings 0",
+"lint:fix": "eslint '*.{js,mjs,cjs,ts}' app/javascript/ test/javascript/ --fix",
+"format": "prettier --check 'app/javascript' 'test/javascript' '*.{js,mjs,cjs,ts}'",
+"format:fix": "prettier --write 'app/javascript' 'test/javascript' '*.{js,mjs,cjs,ts}'"
+```
+
+Also add this browser lifecycle example to
+`spec/system/profile_avatar_spec.rb`:
 
 ```ruby
 it "revokes every temporary avatar preview URL" do
@@ -296,47 +343,46 @@ ensure
 end
 ```
 
-- [ ] **Step 2: Run the lifecycle example and verify RED**
+- [ ] **Step 2: Run the render-purity test and verify RED**
 
 Run:
 
 ```bash
-bin/rspec spec/system/profile_avatar_spec.rb \
-  --example "revokes every temporary avatar preview URL"
+npm run test:javascript
 ```
 
-Expected in the React Strict Mode development build: FAIL because the
-render-time `useMemo` calculation creates an extra object URL whose value is
-discarded and never reaches the cleanup effect.
-
-If the installed test build does not expose the leak, stop and redesign the
-test until it fails for the render-time allocation. Do not change production
-code without observing the required RED, and do not add a test-only
-production branch.
+Expected: FAIL because `use-object-url.ts` and its pure-render API do not
+exist yet. The system lifecycle test may already pass in the production-like
+test bundle, which does not double-invoke `useMemo`; it remains responsible
+for proving that every committed preview URL is revoked.
 
 - [ ] **Step 3: Implement the object-URL hook**
 
 Create `app/javascript/hooks/use-object-url.ts`:
 
 ```ts
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-export function useObjectUrl(file: File | null) {
+export function useObjectUrl() {
   const [url, setUrl] = useState<string | null>(null)
+  const urlRef = useRef<string | null>(null)
 
-  useEffect(() => {
-    if (!file) {
-      setUrl(null)
-      return
-    }
+  const replaceFile = useCallback((file: File | null) => {
+    if (urlRef.current) URL.revokeObjectURL(urlRef.current)
 
-    const nextUrl = URL.createObjectURL(file)
+    const nextUrl = file ? URL.createObjectURL(file) : null
+    urlRef.current = nextUrl
     setUrl(nextUrl)
+  }, [])
 
-    return () => URL.revokeObjectURL(nextUrl)
-  }, [file])
+  useEffect(
+    () => () => {
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current)
+    },
+    [],
+  )
 
-  return url
+  return [url, replaceFile] as const
 }
 ```
 
@@ -346,7 +392,10 @@ In `app/javascript/pages/settings/profiles/show.tsx`:
 
 - import `useObjectUrl` from `@/hooks/use-object-url`;
 - remove `useMemo` and the preview cleanup `useEffect`;
-- set `const preview = useObjectUrl(avatar)`.
+- set `const [preview, replacePreviewFile] = useObjectUrl()`;
+- call `replacePreviewFile(nextAvatar)` from the avatar selection handler;
+- call `replacePreviewFile(null)` when removing an avatar and after a
+  successful save.
 
 Keep the remaining profile data flow unchanged.
 
@@ -355,16 +404,20 @@ Keep the remaining profile data flow unchanged.
 Run:
 
 ```bash
+npm run test:javascript
 bin/rspec spec/system/profile_avatar_spec.rb
 ```
 
-Expected: the lifecycle assertion and all existing avatar behavior pass.
+Expected: the render-purity test, lifecycle assertion, and all existing
+avatar behavior pass.
 
 - [ ] **Step 6: Commit the lifecycle fix**
 
 ```bash
 git add app/javascript/hooks/use-object-url.ts \
   app/javascript/pages/settings/profiles/show.tsx \
+  package.json \
+  test/javascript/use-object-url.test.js \
   spec/system/profile_avatar_spec.rb
 git commit -m "fix: manage avatar object url lifecycle"
 ```

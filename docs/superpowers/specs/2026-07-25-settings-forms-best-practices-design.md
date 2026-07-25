@@ -55,14 +55,17 @@ API. This design deliberately does not add a history workaround.
 ## Profile Avatar Preview
 
 Replace render-time `URL.createObjectURL` work with a focused object-URL hook.
-The hook:
+The hook returns the current URL and an event-handler function that replaces
+its source file. It:
 
-- returns no URL when no file is selected;
-- creates the URL in an effect after the file changes;
+- creates no URL during render;
+- creates or replaces the URL when the file-selection event handler calls it;
 - stores the current preview URL in state;
-- revokes that exact URL in the effect cleanup before replacement or unmount.
+- revokes the previous URL before replacement or removal;
+- uses an effect only to revoke the last URL on unmount.
 
-This keeps render and `useMemo` calculations pure under React Strict Mode.
+This keeps render pure under React Strict Mode and avoids a cascading state
+update inside an effect.
 The existing preview precedence remains unchanged: pending upload, armed
 removal, then stored avatar.
 

@@ -17,8 +17,9 @@ interface UnsavedChangesContextValue {
   updateRegistration: (id: string, isDirty: boolean) => void
 }
 
-const UnsavedChangesContext =
-  createContext<UnsavedChangesContextValue | null>(null)
+const UnsavedChangesContext = createContext<UnsavedChangesContextValue | null>(
+  null,
+)
 
 export function UnsavedChangesProvider({ children }: PropsWithChildren) {
   const [dirtyRegistrations, setDirtyRegistrations] = useState<
@@ -65,16 +66,9 @@ export function UnsavedChangesProvider({ children }: PropsWithChildren) {
     return () => window.removeEventListener("beforeunload", preventUnload)
   }, [hasUnsavedChanges])
 
-  const value = useMemo(
-    () => ({ updateRegistration }),
-    [updateRegistration],
-  )
+  const value = useMemo(() => ({ updateRegistration }), [updateRegistration])
 
-  return (
-    <UnsavedChangesContext value={value}>
-      {children}
-    </UnsavedChangesContext>
-  )
+  return <UnsavedChangesContext value={value}>{children}</UnsavedChangesContext>
 }
 
 export function useUnsavedChanges(isDirty: boolean) {

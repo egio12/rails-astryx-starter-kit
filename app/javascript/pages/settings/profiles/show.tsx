@@ -7,9 +7,10 @@ import { StatusDot } from "@astryxdesign/core/StatusDot"
 import { Heading, Text } from "@astryxdesign/core/Text"
 import { TextInput } from "@astryxdesign/core/TextInput"
 import { Head, useForm, usePage } from "@inertiajs/react"
-import { type FormEvent, useEffect, useMemo } from "react"
+import { type FormEvent } from "react"
 
 import DeleteUser from "@/components/delete-user"
+import { useObjectUrl } from "@/hooks/use-object-url"
 import AppLayout from "@/layouts/app-layout"
 import SettingsLayout from "@/layouts/settings/layout"
 import { astryxStatus } from "@/lib/astryx"
@@ -38,21 +39,9 @@ export default function Profile() {
     avatar: null as File | null,
     removeAvatar: false,
   })
-  const { avatar } = form.data
   useUnsavedChanges(form.isDirty)
 
-  // Derived rather than stored in state: the effect only has to hand the object
-  // URL back to the browser once it is no longer on screen.
-  const preview = useMemo(
-    () => (avatar ? URL.createObjectURL(avatar) : null),
-    [avatar],
-  )
-
-  useEffect(() => {
-    if (!preview) return
-
-    return () => URL.revokeObjectURL(preview)
-  }, [preview])
+  const [preview, replacePreviewFile] = useObjectUrl()
 
   // The pending upload wins, then the removal the user armed, then what is stored.
   const avatarSrc =
@@ -60,14 +49,17 @@ export default function Profile() {
     (form.data.removeAvatar ? undefined : (user.avatar_url ?? undefined))
 
   const selectAvatar = (files: File | File[] | null) => {
+    const nextAvatar = Array.isArray(files) ? (files[0] ?? null) : files
+    replacePreviewFile(nextAvatar)
     form.setData((data) => ({
       ...data,
-      avatar: Array.isArray(files) ? (files[0] ?? null) : files,
+      avatar: nextAvatar,
       removeAvatar: false,
     }))
   }
 
   const removeAvatar = () => {
+    replacePreviewFile(null)
     form.setData((data) => ({ ...data, avatar: null, removeAvatar: true }))
   }
 
@@ -88,6 +80,7 @@ export default function Profile() {
         // Drop the transient upload state, then make what was just saved the
         // new baseline so the form stops reporting itself as dirty. setData
         // must come first: argless setDefaults reads the form's live data.
+        replacePreviewFile(null)
         form.setData((data) => ({ ...data, avatar: null, removeAvatar: false }))
         form.setDefaults()
       },
