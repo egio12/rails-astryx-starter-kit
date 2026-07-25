@@ -36,10 +36,12 @@ form's state when one consumer unmounts.
 
 When at least one registration is dirty:
 
-- A normal Inertia visit uses the browser's synchronous `window.confirm`.
+- A navigational GET visit uses the browser's synchronous `window.confirm`.
 - Rejecting the confirmation cancels the visit by returning `false` from the
   official Inertia `before` listener.
 - Accepting it allows the original visit to continue unchanged.
+- POST, PUT, PATCH, and DELETE visits are not guarded, so saving or otherwise
+  submitting a dirty form never prompts before its own request.
 - A full unload calls `preventDefault()` on `beforeunload`, allowing the
   browser to show its required native warning.
 
@@ -96,6 +98,7 @@ Use test-driven changes with the existing Rails system-test stack:
 - A dirty profile completes the original Inertia navigation when the user
   accepts the confirmation.
 - A clean profile navigates without a confirmation.
+- Saving a dirty profile does not trigger the navigation confirmation.
 - Pressing Enter in the deletion password field submits the deletion form.
 - Existing avatar upload, removal, preview, and rebaseline tests remain green.
 
