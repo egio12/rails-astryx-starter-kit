@@ -6,7 +6,7 @@ RSpec.describe "Profile avatar", type: :system do
   fixtures :users
 
   let(:user) { users(:one) }
-  let(:avatar_path) { file_fixture("avatar.png") }
+  let(:avatar_path) { browser_uploadable_fixture("avatar.png") }
 
   before { sign_in_through_form(user) }
 
@@ -63,7 +63,7 @@ RSpec.describe "Profile avatar", type: :system do
   it "refuses an unsupported format without arming the form" do
     visit settings_profile_path
 
-    attach_file("Photo", file_fixture("animation.gif"), make_visible: true)
+    attach_file("Photo", browser_uploadable_fixture("animation.gif"), make_visible: true)
 
     expect(page).to have_no_text("Unsaved changes")
     expect(page).to have_button("Save", disabled: true)
