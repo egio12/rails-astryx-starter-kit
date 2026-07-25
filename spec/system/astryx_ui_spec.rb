@@ -130,6 +130,20 @@ RSpec.describe "Astryx UI", type: :system do
     expect(page).to have_css(".astryx-text-input", minimum: 3)
   end
 
+  it "submits account deletion with Enter from the password field" do
+    user = users(:one)
+    sign_in_as user
+    visit settings_profile_path
+
+    click_on "Delete account"
+    fill_in "Password", with: AuthenticationHelpers::System::PASSWORD
+    find_field("Password").send_keys(:enter)
+
+    expect(page).to have_current_path(root_path)
+    expect(page).to have_text("Your account has been deleted")
+    expect(User.exists?(user.id)).to be(false)
+  end
+
   it "renders dashboard widgets and session management rows" do
     other_session = users(:one).sessions.create!
     other_session.update!(user_agent: "Other browser", ip_address: "203.0.113.7")

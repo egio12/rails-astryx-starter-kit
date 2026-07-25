@@ -11,7 +11,7 @@ import {
 import { Heading, Text } from "@astryxdesign/core/Text"
 import { TextInput } from "@astryxdesign/core/TextInput"
 import { useForm } from "@inertiajs/react"
-import { useRef, useState } from "react"
+import { type FormEvent, useRef, useState } from "react"
 
 import { astryxStatus } from "@/lib/astryx"
 import { users } from "@/routes"
@@ -35,7 +35,9 @@ export default function DeleteUser() {
     }
   }
 
-  const submitDeletion = () => {
+  const submitDeletion = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
     deletion.delete(users.destroy().url, {
       preserveScroll: true,
       onSuccess: closeDeletion,
@@ -73,56 +75,59 @@ export default function DeleteUser() {
         purpose="form"
         width={480}
       >
-        <Layout
-          header={
-            <DialogHeader
-              title="Delete account?"
-              subtitle="This action cannot be undone."
-              onOpenChange={updateDeletionOpen}
-            />
-          }
-          content={
-            <LayoutContent>
-              <VStack gap={4}>
-                <Text type="body" as="p">
-                  Enter your password to permanently delete your account and all
-                  associated data.
-                </Text>
-                <TextInput
-                  label="Password"
-                  type="password"
-                  ref={passwordInput}
-                  value={deletion.data.password_challenge}
-                  onChange={(value) =>
-                    deletion.setData("password_challenge", value)
-                  }
-                  status={astryxStatus(deletion.errors.password_challenge)}
-                  isRequired
-                  hasAutoFocus
-                  autoComplete="current-password"
-                />
-              </VStack>
-            </LayoutContent>
-          }
-          footer={
-            <LayoutFooter>
-              <HStack gap={2} hAlign="end">
-                <Button
-                  label="Cancel"
-                  variant="secondary"
-                  onClick={closeDeletion}
-                />
-                <Button
-                  label="Delete account"
-                  variant="destructive"
-                  isDisabled={!deletion.data.password_challenge}
-                  isLoading={deletion.processing}
-                  onClick={submitDeletion}
-                />
-              </HStack>
-            </LayoutFooter>
-          }
-        />
+        <form onSubmit={submitDeletion} noValidate>
+          <Layout
+            header={
+              <DialogHeader
+                title="Delete account?"
+                subtitle="This action cannot be undone."
+                onOpenChange={updateDeletionOpen}
+              />
+            }
+            content={
+              <LayoutContent>
+                <VStack gap={4}>
+                  <Text type="body" as="p">
+                    Enter your password to permanently delete your account and
+                    all associated data.
+                  </Text>
+                  <TextInput
+                    label="Password"
+                    type="password"
+                    ref={passwordInput}
+                    value={deletion.data.password_challenge}
+                    onChange={(value) =>
+                      deletion.setData("password_challenge", value)
+                    }
+                    status={astryxStatus(deletion.errors.password_challenge)}
+                    isRequired
+                    hasAutoFocus
+                    autoComplete="current-password"
+                  />
+                </VStack>
+              </LayoutContent>
+            }
+            footer={
+              <LayoutFooter>
+                <HStack gap={2} hAlign="end">
+                  <Button
+                    type="button"
+                    label="Cancel"
+                    variant="secondary"
+                    onClick={closeDeletion}
+                  />
+                  <Button
+                    type="submit"
+                    label="Delete account"
+                    variant="destructive"
+                    isDisabled={!deletion.data.password_challenge}
+                    isLoading={deletion.processing}
+                  />
+                </HStack>
+              </LayoutFooter>
+            }
+          />
+        </form>
       </Dialog>
     </>
   )
