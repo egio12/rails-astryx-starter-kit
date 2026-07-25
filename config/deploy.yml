@@ -7,10 +7,10 @@ image: react_starter_kit
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    - REPLACE_WITH_WEB_HOST
   # job:
   #   hosts:
-  #     - 192.168.0.1
+  #     - REPLACE_WITH_JOB_HOST
   #   cmd: bin/jobs
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
@@ -27,10 +27,10 @@ servers:
 # Where you keep your container images.
 registry:
   # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
+  server: REPLACE_WITH_REGISTRY_HOST
 
   # Needed for authenticated registries.
-  # username: your-user
+  # username: REPLACE_WITH_REGISTRY_USER
 
   # Always use an access token rather than real password when possible.
   # password:
@@ -53,7 +53,7 @@ env:
 
     # Match this to any external database server to configure Active Record correctly
     # Use react_starter_kit-db for a db accessory server on same machine via local kamal docker network.
-    # DB_HOST: 192.168.0.2
+    # DB_HOST: REPLACE_WITH_DB_HOST
 
     # Log everything from Rails
     # RAILS_LOG_LEVEL: debug
@@ -81,7 +81,7 @@ builder:
   arch: amd64
   cache:
     type: registry
-    image: your-user/react-starter-kit-build-cache
+    image: REPLACE_WITH_REGISTRY_USER/react-starter-kit-build-cache
     options: mode=max
 
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
@@ -102,7 +102,7 @@ builder:
 # accessories:
 #   db:
 #     image: mysql:8.0
-#     host: 192.168.0.2
+#     host: REPLACE_WITH_ACCESSORY_HOST
 #     # Change to 3306 to expose port to the world instead of just local network.
 #     port: "127.0.0.1:3306:3306"
 #     env:
@@ -117,7 +117,7 @@ builder:
 #       - data:/var/lib/mysql
 #   redis:
 #     image: valkey/valkey:8
-#     host: 192.168.0.2
+#     host: REPLACE_WITH_ACCESSORY_HOST
 #     port: 6379
 #     directories:
 #       - data:/data
