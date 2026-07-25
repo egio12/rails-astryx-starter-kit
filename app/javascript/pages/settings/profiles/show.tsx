@@ -85,8 +85,6 @@ export default function Profile() {
   const submit = (event: FormEvent) => {
     event.preventDefault()
 
-    const savedName = form.data.name
-
     // Sent only when set, so a plain rename stays a JSON request instead of
     // becoming a multipart one.
     form.transform((data) => ({
@@ -98,10 +96,11 @@ export default function Profile() {
     form.patch(settingsProfiles.update().url, {
       preserveScroll: true,
       onSuccess: () => {
-        // What was just saved becomes the new baseline, so the form stops
-        // reporting itself as dirty.
-        form.setDefaults({ name: savedName, avatar: null, removeAvatar: false })
-        form.reset()
+        // Drop the transient upload state, then make what was just saved the
+        // new baseline so the form stops reporting itself as dirty. setData
+        // must come first: argless setDefaults reads the form's live data.
+        form.setData((data) => ({ ...data, avatar: null, removeAvatar: false }))
+        form.setDefaults()
       },
     })
   }

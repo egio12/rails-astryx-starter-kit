@@ -45,6 +45,18 @@ RSpec.describe "Profile avatar", type: :system do
     expect(user.reload.avatar).not_to be_attached
   end
 
+  it "rebaselines the form after renaming" do
+    visit settings_profile_path
+
+    fill_in "Name", with: "Renamed User"
+    click_on "Save"
+
+    expect(page).to have_text("Your profile has been updated")
+    expect(page).to have_no_text("Unsaved changes")
+    expect(page).to have_field("Name", with: "Renamed User")
+    expect(user.reload.name).to eq("Renamed User")
+  end
+
   # The field's own accept filter stops an unsupported format before it ever
   # reaches the form, so there is nothing to submit. The server-side rejection
   # is covered in spec/requests/settings/profiles_spec.rb.
