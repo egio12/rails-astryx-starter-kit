@@ -42,7 +42,7 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "rails-vite-plugin": "^0.2.5",
     "tailwindcss": "^4.3.3",
-    "typescript": "~6.0",
+    "typescript": "~7.0",
     "typescript-eslint": "^8.65.0",
     "vite": "^8.1.5"
   }
