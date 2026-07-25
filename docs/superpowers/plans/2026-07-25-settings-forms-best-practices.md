@@ -309,9 +309,9 @@ Expected in the React Strict Mode development build: FAIL because the
 render-time `useMemo` calculation creates an extra object URL whose value is
 discarded and never reaches the cleanup effect.
 
-If the installed test build does not double-invoke the calculation, retain
-the test as lifecycle coverage and use the React purity rule plus the exact
-installed source behavior as the refactoring oracle; do not add a test-only
+If the installed test build does not expose the leak, stop and redesign the
+test until it fails for the render-time allocation. Do not change production
+code without observing the required RED, and do not add a test-only
 production branch.
 
 - [ ] **Step 3: Implement the object-URL hook**
