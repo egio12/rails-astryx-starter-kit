@@ -2,8 +2,8 @@ import { router } from "@inertiajs/react"
 import {
   type PropsWithChildren,
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useId,
   useMemo,
@@ -72,7 +72,7 @@ export function UnsavedChangesProvider({ children }: PropsWithChildren) {
 }
 
 export function useUnsavedChanges(isDirty: boolean) {
-  const context = useContext(UnsavedChangesContext)
+  const context = use(UnsavedChangesContext)
   const id = useId()
 
   if (!context) {

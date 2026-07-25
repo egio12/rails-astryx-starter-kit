@@ -19,7 +19,7 @@ import { users } from "@/routes"
 export default function DeleteUser() {
   const [isOpen, setIsOpen] = useState(false)
   const deletion = useForm({ password_challenge: "" })
-  const passwordInput = useRef<HTMLInputElement>(null)
+  const passwordInputRef = useRef<HTMLInputElement>(null)
 
   const closeDeletion = () => {
     deletion.reset()
@@ -41,7 +41,7 @@ export default function DeleteUser() {
     deletion.delete(users.destroy().url, {
       preserveScroll: true,
       onSuccess: closeDeletion,
-      onError: () => passwordInput.current?.focus(),
+      onError: () => passwordInputRef.current?.focus(),
     })
   }
 
@@ -94,7 +94,7 @@ export default function DeleteUser() {
                   <TextInput
                     label="Password"
                     type="password"
-                    ref={passwordInput}
+                    ref={passwordInputRef}
                     value={deletion.data.password_challenge}
                     onChange={(value) =>
                       deletion.setData("password_challenge", value)

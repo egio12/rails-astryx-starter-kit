@@ -2,10 +2,10 @@
 <%# data-theme drives color-scheme via Astryx reset.css; rendered server-side to avoid FOUC. %>
 <html<% if appearance_mode %> data-theme="<%= appearance_mode %>"<% end %>>
   <head>
-    <title data-inertia><%= content_for(:title) || "React Starter Kit" %></title>
+    <title data-inertia><%= content_for(:title) || "Rails Astryx Starter Kit" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="React Starter Kit">
+    <meta name="application-name" content="Rails Astryx Starter Kit">
     <meta name="mobile-web-app-capable" content="yes">
     <%= capybara_lockstep if defined?(Capybara::Lockstep) %>
     <%= csrf_meta_tags %>

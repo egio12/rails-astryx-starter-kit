@@ -9,7 +9,7 @@ export default function AppLogo() {
     <HStack gap={2} align="center">
       <Icon icon={AppLogoIcon} size="lg" />
       <Text type="label" maxLines={1}>
-        {import.meta.env.VITE_APP_NAME ?? "React Starter Kit"}
+        {import.meta.env.VITE_APP_NAME ?? "Rails Astryx Starter Kit"}
       </Text>
     </HStack>
   )

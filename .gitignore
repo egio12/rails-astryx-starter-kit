@@ -42,5 +42,9 @@ node_modules
 # Local feature worktrees
 /.worktrees/
 
+# Local AI-agent planning artifacts
+/docs/plans/
+/docs/superpowers/
+
 # Claude Code local settings
 /.claude/settings.local.json

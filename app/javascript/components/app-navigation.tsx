@@ -1,7 +1,7 @@
 import { SideNavItem, SideNavSection } from "@astryxdesign/core/SideNav"
 import { usePage } from "@inertiajs/react"
 import { BookOpen, Folder, LayoutGrid } from "lucide-react"
-import { type ComponentPropsWithoutRef, forwardRef } from "react"
+import type { ComponentPropsWithRef } from "react"
 
 import { AppLink } from "@/components/inertia-link"
 import { dashboard } from "@/routes"
@@ -17,7 +17,7 @@ const primaryNavigation = [
 const resourceNavigation = [
   {
     label: "Repository",
-    href: "https://github.com/inertia-rails/react-starter-kit",
+    href: "https://github.com/egio12/rails-astryx-starter-kit",
     icon: Folder,
   },
   {
@@ -27,14 +27,14 @@ const resourceNavigation = [
   },
 ]
 
-const ExternalLink = forwardRef<
-  HTMLAnchorElement,
-  ComponentPropsWithoutRef<typeof AppLink>
->(function ExternalLink(props, ref) {
+function ExternalLink({
+  ref,
+  ...props
+}: ComponentPropsWithRef<typeof AppLink>) {
   return (
     <AppLink ref={ref} target="_blank" rel="noopener noreferrer" {...props} />
   )
-})
+}
 
 export function PrimaryNavigation() {
   const { url } = usePage()

@@ -33,7 +33,7 @@ export function AppSidebar() {
       header={
         <SideNavHeading
           icon={<NavIcon icon={<Icon icon={AppLogoIcon} size="sm" />} />}
-          heading={import.meta.env.VITE_APP_NAME ?? "React Starter Kit"}
+          heading={import.meta.env.VITE_APP_NAME ?? "Rails Astryx Starter Kit"}
           headingHref={dashboard.index().url}
         />
       }

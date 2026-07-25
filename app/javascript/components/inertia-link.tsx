@@ -1,11 +1,7 @@
 import { Link as InertiaLink } from "@inertiajs/react"
-import {
-  type ComponentPropsWithoutRef,
-  type MouseEvent,
-  forwardRef,
-} from "react"
+import type { ComponentPropsWithRef, MouseEvent } from "react"
 
-type AnchorProps = ComponentPropsWithoutRef<"a">
+type AnchorProps = ComponentPropsWithRef<"a">
 
 type AppLinkProps = Pick<
   AnchorProps,
@@ -21,6 +17,7 @@ type AppLinkProps = Pick<
   | "aria-label"
   | "aria-current"
   | "aria-disabled"
+  | "ref"
 > & {
   href?: string
   download?: string | boolean
@@ -29,24 +26,28 @@ type AppLinkProps = Pick<
 
 const browserOwnedDestination = /^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i
 
-export const AppLink = forwardRef<HTMLAnchorElement, AppLinkProps>(
-  function AppLink({ href = "", download, children, ...props }, ref) {
-    const destination = href.toString()
-    const isBrowserOwned =
-      browserOwnedDestination.test(destination) || Boolean(download)
+export function AppLink({
+  href = "",
+  download,
+  children,
+  ref,
+  ...props
+}: AppLinkProps) {
+  const destination = href.toString()
+  const isBrowserOwned =
+    browserOwnedDestination.test(destination) || Boolean(download)
 
-    if (isBrowserOwned) {
-      return (
-        <a ref={ref} href={destination} download={download} {...props}>
-          {children}
-        </a>
-      )
-    }
-
+  if (isBrowserOwned) {
     return (
-      <InertiaLink ref={ref} href={destination} {...props}>
+      <a ref={ref} href={destination} download={download} {...props}>
         {children}
-      </InertiaLink>
+      </a>
     )
-  },
-)
+  }
+
+  return (
+    <InertiaLink ref={ref} href={destination} {...props}>
+      {children}
+    </InertiaLink>
+  )
+}

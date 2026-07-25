@@ -51,6 +51,17 @@ writing the fix. Most bugs are a misused API, not a broken one.
 Never state that something works, is fixed, or passes without having run the command and read its
 output. Use `superpowers:verification-before-completion` before claiming any work is complete.
 
+### 5. Keep planning artifacts local
+
+Design documents and implementation plans are local working artifacts. Store them under
+`docs/plans/` or `docs/superpowers/` as appropriate. These directories are ignored by Git: leave
+the files in place locally, but never force-add, stage, or commit them unless the user explicitly
+asks.
+
+If a skill instructs you to commit a plan, this project rule overrides that default. Long-lived
+project documentation may still be committed elsewhere under `docs/` when the user explicitly
+requests it.
+
 ## Browser verification
 
 Use Chrome: `bin/rspec spec/system` already defaults to headless Chrome. Not Safari — measured as

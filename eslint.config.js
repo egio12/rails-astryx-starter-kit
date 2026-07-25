@@ -1,10 +1,11 @@
 import pluginJs from "@eslint/js"
+import eslintReact from "@eslint-react/eslint-plugin"
 import prettierConfig from "eslint-config-prettier/flat"
-import importPlugin from "eslint-plugin-import"
-import pluginReact from "eslint-plugin-react"
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript"
+import { importX } from "eslint-plugin-import-x"
 import reactHooks from "eslint-plugin-react-hooks"
 import globals from "globals"
-import tseslint from "typescript-eslint"
+import { configs as tseslintConfigs } from "typescript-eslint"
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -17,11 +18,6 @@ export default [
     ],
   },
   {
-    settings: {
-      react: {
-        version: "detect",
-      },
-    },
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
       parserOptions: {
@@ -32,18 +28,21 @@ export default [
   },
   pluginJs.configs.recommended,
   reactHooks.configs.flat.recommended,
-  ...tseslint.configs.stylisticTypeChecked,
-  ...tseslint.configs.recommendedTypeChecked,
-  pluginReact.configs.flat.recommended,
-  pluginReact.configs.flat["jsx-runtime"],
+  ...tseslintConfigs.stylisticTypeChecked,
+  ...tseslintConfigs.recommendedTypeChecked,
+  {
+    files: ["app/javascript/**/*.{ts,tsx}"],
+    ...eslintReact.configs["recommended-typescript"],
+  },
+  importX.flatConfigs.recommended,
+  importX.flatConfigs.typescript,
   prettierConfig,
   {
-    ...importPlugin.flatConfigs.recommended,
-    ...importPlugin.flatConfigs.typescript,
-    ...importPlugin.flatConfigs.react,
-    settings: { "import/resolver": { typescript: {} } },
+    settings: {
+      "import-x/resolver-next": [createTypeScriptImportResolver()],
+    },
     rules: {
-      "import/order": [
+      "import-x/order": [
         "error",
         {
           pathGroups: [
@@ -58,8 +57,8 @@ export default [
           alphabetize: { order: "asc" },
         },
       ],
-      "import/first": "error",
-      "import/extensions": [
+      "import-x/first": "error",
+      "import-x/extensions": [
         "error",
         "always",
         {
@@ -70,11 +69,10 @@ export default [
         },
       ],
       "@typescript-eslint/consistent-type-imports": "error",
-      "react/prop-types": "off",
     },
   },
   {
     files: ["**/*.js"],
-    ...tseslint.configs.disableTypeChecked,
+    ...tseslintConfigs.disableTypeChecked,
   },
 ]

@@ -5,7 +5,7 @@ import { createElement } from "react"
 import { renderToString } from "react-dom/server"
 
 // Node's native TypeScript loader requires explicit file extensions.
-// eslint-disable-next-line import/extensions
+// eslint-disable-next-line import-x/extensions
 import { useObjectUrl } from "../../app/javascript/hooks/use-object-url.ts"
 
 function ObjectUrlHarness() {

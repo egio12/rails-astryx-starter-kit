@@ -1,5 +1,5 @@
 {
-  "name": "react_starter_kit",
+  "name": "rails-astryx-starter-kit",
   "private": true,
   "type": "module",
   "scripts": {
@@ -22,7 +22,8 @@
   "devDependencies": {
     "@astryxdesign/cli": "^0.1.8",
     "@babel/core": "^7.29.7",
-    "@eslint/js": "^9.39.5",
+    "@eslint-react/eslint-plugin": "^5.18.0",
+    "@eslint/js": "^10.0.1",
     "@inertiajs/core": "^3.6.1",
     "@inertiajs/vite": "^3.6.1",
     "@rolldown/plugin-babel": "^0.2.3",
@@ -31,11 +32,10 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.7.0",
     "prettier": "^3.9.6",
