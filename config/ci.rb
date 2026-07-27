@@ -8,6 +8,9 @@ CI.run do
   step "JavaScript: lint", "npm run lint"
   step "JavaScript: format", "npm run format"
   step "JavaScript: types check", "npm run check"
+  step "JavaScript: tests", "npm run test:javascript"
+  step "JavaScript: client build", "npm run build"
+  step "JavaScript: SSR build", "npm run build:ssr"
   step "JavaScript: generated types are fresh", "bin/rails typelizer:generate:refresh && git diff --exit-code -- app/javascript/routes app/javascript/types/serializers && test -z \"$(git ls-files --others --exclude-standard -- app/javascript/routes app/javascript/types/serializers)\""
 
   step "Security: Gem audit", "bin/bundler-audit"

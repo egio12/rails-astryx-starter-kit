@@ -8,6 +8,6 @@ InertiaRails.configure do |config|
   config.always_include_errors_hash = true
   config.parent_controller = "::InertiaController"
 
-  # Flip to true (and rebuild with --build-arg SSR_ENABLED=true) to enable SSR.
-  config.ssr_enabled = true
+  # Keep runtime behavior aligned with the Docker build's SSR_ENABLED argument.
+  config.ssr_enabled = ActiveModel::Type::Boolean.new.cast(ENV.fetch("SSR_ENABLED", "true"))
 end

@@ -41,6 +41,9 @@ env:
   secret:
     - RAILS_MASTER_KEY
   clear:
+    # One value controls both the image build and the Inertia Rails runtime.
+    SSR_ENABLED: <%= ENV.fetch("SSR_ENABLED", "true") %>
+
     # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
     # When you start using multiple servers, you should split out job processing to a dedicated machine.
     SOLID_QUEUE_IN_PUMA: true
@@ -79,6 +82,8 @@ asset_path: /rails/public
 # Configure the image builder.
 builder:
   arch: amd64
+  args:
+    SSR_ENABLED: <%= ENV.fetch("SSR_ENABLED", "true") %>
   cache:
     type: registry
     image: REPLACE_WITH_REGISTRY_USER/react-starter-kit-build-cache

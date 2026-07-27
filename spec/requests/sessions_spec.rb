@@ -16,6 +16,16 @@ RSpec.describe "Sessions", type: :request do
       get sign_in_path
       expect(response).to redirect_to(root_path)
     end
+
+    it "rejects and deletes an expired session" do
+      session_record = users(:one).sessions.create!(expires_at: 1.second.ago)
+      cookies[:session_token] = AuthenticationHelpers.signed_cookie(:session_token, session_record.id)
+
+      get dashboard_path
+
+      expect(response).to redirect_to(sign_in_path)
+      expect(Session.exists?(session_record.id)).to be(false)
+    end
   end
 
   describe "POST /sign_in" do

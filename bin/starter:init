@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require_relative "../lib/starter_kit/renamer"
+
+options = {}
+parser = OptionParser.new do |command|
+  command.banner = 'Usage: bin/starter:init "Product Name" [--slug product-name]'
+  command.on("--slug SLUG", "Use an explicit lowercase kebab-case identifier") do |slug|
+    options[:slug] = slug
+  end
+  command.on("-h", "--help", "Show this help") do
+    puts command
+    exit
+  end
+end
+
+begin
+  parser.parse!
+  product_name = ARGV.shift
+  raise OptionParser::MissingArgument, "Product Name" unless product_name
+  raise OptionParser::InvalidArgument, "unexpected arguments: #{ARGV.join(" ")}" if ARGV.any?
+
+  changed_files = StarterKit::Renamer.new(
+    root: File.expand_path("..", __dir__),
+    product_name: product_name,
+    slug: options[:slug]
+  ).call
+
+  puts "Renamed starter kit to #{product_name.strip}:"
+  changed_files.each { |path| puts "  #{path}" }
+rescue OptionParser::ParseError, ArgumentError, StarterKit::Renamer::AlreadyRenamedError,
+       StarterKit::Renamer::UnexpectedSourceError => error
+  warn error.message
+  warn parser
+  exit 1
+end
