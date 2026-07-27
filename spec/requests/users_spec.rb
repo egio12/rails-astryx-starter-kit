@@ -42,6 +42,27 @@ RSpec.describe "Users", type: :request do
       }.not_to change(User, :count)
       expect(response).to redirect_to(sign_up_path)
     end
+
+    context "when rate limited by IP" do
+      it "blocks the 6th attempt within an hour" do
+        invalid_params = {
+          name: "",
+          email: "invalid",
+          password: "short",
+          password_confirmation: "short"
+        }
+
+        5.times do
+          post sign_up_path, params: invalid_params
+          expect(flash[:alert]).not_to eq("Too many sign up attempts. Please try again later")
+        end
+
+        post sign_up_path, params: invalid_params
+
+        expect(response).to redirect_to(sign_up_path)
+        expect(flash[:alert]).to eq("Too many sign up attempts. Please try again later")
+      end
+    end
   end
 
   describe "DELETE /users" do

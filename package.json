@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "build:ssr": "vite build --ssr",
     "check": "tsc -p tsconfig.app.json && tsc -p tsconfig.node.json",
     "test:javascript": "node --test test/javascript/use-object-url.test.js",
     "lint": "eslint '*.{js,mjs,cjs,ts}' app/javascript/ test/javascript/ --report-unused-disable-directives --max-warnings 0",

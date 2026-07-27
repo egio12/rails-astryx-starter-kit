@@ -19,28 +19,55 @@ RSpec.describe "Identity::PasswordResets", type: :request do
           post identity_password_reset_path, params: { email: users(:one).email }
         }.to have_enqueued_email(UserMailer, :password_reset).with(params: { user: users(:one) }, args: [])
         expect(response).to redirect_to(sign_in_path)
+        expect(flash[:notice]).to eq("If that email can receive a password reset, instructions are on the way")
       end
     end
 
     context "with an unverified user" do
-      it "does not send a password reset email" do
+      it "returns the same public response without sending email" do
         users(:one).update!(verified: false)
 
         expect {
           post identity_password_reset_path, params: { email: users(:one).email }
         }.not_to have_enqueued_mail(UserMailer, :password_reset)
-        expect(response).to redirect_to(new_identity_password_reset_path)
-        expect(flash[:alert]).to eq("You can't reset your password until you verify your email")
+        expect(response).to redirect_to(sign_in_path)
+        expect(flash[:notice]).to eq("If that email can receive a password reset, instructions are on the way")
       end
     end
 
     context "with a nonexistent email" do
-      it "does not send a password reset email" do
+      it "returns the same public response without sending email" do
         expect {
           post identity_password_reset_path, params: { email: "missing@example.com" }
         }.not_to have_enqueued_mail(UserMailer, :password_reset)
+        expect(response).to redirect_to(sign_in_path)
+        expect(flash[:notice]).to eq("If that email can receive a password reset, instructions are on the way")
+      end
+    end
+
+    context "when rate limited by IP" do
+      it "blocks the 11th request within 10 minutes" do
+        10.times do |index|
+          post identity_password_reset_path, params: { email: "missing#{index}@example.com" }
+        end
+
+        post identity_password_reset_path, params: { email: "missing10@example.com" }
+
         expect(response).to redirect_to(new_identity_password_reset_path)
-        expect(flash[:alert]).to eq("You can't reset your password until you verify your email")
+        expect(flash[:alert]).to eq("Too many password reset requests. Please try again later")
+      end
+    end
+
+    context "when rate limited by email" do
+      it "blocks the 4th normalized email request within 10 minutes" do
+        3.times do
+          post identity_password_reset_path, params: { email: users(:one).email }
+        end
+
+        post identity_password_reset_path, params: { email: " #{users(:one).email.upcase} " }
+
+        expect(response).to redirect_to(new_identity_password_reset_path)
+        expect(flash[:alert]).to eq("Too many password reset requests. Please try again later")
       end
     end
   end
@@ -55,6 +82,14 @@ RSpec.describe "Identity::PasswordResets", type: :request do
     it "rejects invalid reset token" do
       get edit_identity_password_reset_path(sid: "invalid")
       expect(response).to redirect_to(new_identity_password_reset_path)
+    end
+
+    it "does not suppress unexpected lookup errors" do
+      allow(User).to receive(:find_by_token_for).and_raise("database unavailable")
+
+      expect {
+        get edit_identity_password_reset_path(sid: "valid-looking-token")
+      }.to raise_error(RuntimeError, "database unavailable")
     end
   end
 

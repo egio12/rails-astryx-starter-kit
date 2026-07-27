@@ -19,8 +19,7 @@ class SessionsController < InertiaController
 
   def create
     if user = User.authenticate_by(email: params[:email], password: params[:password])
-      @session = user.sessions.create!
-      cookies.signed.permanent[:session_token] = { value: @session.id, httponly: true }
+      @session = start_new_session_for(user)
 
       redirect_to dashboard_path, notice: "Signed in successfully"
     else

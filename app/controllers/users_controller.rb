@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 class UsersController < InertiaController
+  RATE_LIMIT_ALERT = "Too many sign up attempts. Please try again later"
+
   skip_before_action :authenticate, only: %i[new create]
   before_action :require_no_authentication, only: %i[new create]
+
+  rate_limit to: 5, within: 1.hour, name: "sign-up-ip",
+             with: :rate_limit_exceeded, only: :create
 
   def new
     @user = User.new
@@ -12,8 +17,7 @@ class UsersController < InertiaController
     @user = User.new(user_params)
 
     if @user.save
-      session_record = @user.sessions.create!
-      cookies.signed.permanent[:session_token] = { value: session_record.id, httponly: true }
+      start_new_session_for(@user)
 
       send_email_verification
       redirect_to dashboard_path, notice: "Welcome! You have signed up successfully"
@@ -43,5 +47,9 @@ class UsersController < InertiaController
 
   def send_email_verification
     UserMailer.with(user: @user).email_verification.deliver_later
+  end
+
+  def rate_limit_exceeded
+    redirect_to sign_up_path, alert: RATE_LIMIT_ALERT
   end
 end

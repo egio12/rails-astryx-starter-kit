@@ -24,6 +24,23 @@ This starter kit brings that workflow together with authentication, account sett
 props and routes, server-side rendering, tests, CI, and container deployment already configured.
 It is a practical starting point you can shape into your own product.
 
+## Name your application
+
+After cloning the repository, replace the starter identity with your product name:
+
+```bash
+bin/starter:init "Acme CRM"
+```
+
+The command derives `acme-crm` for package and image names. Supply an explicit lowercase,
+kebab-case identifier when the product and infrastructure names should differ:
+
+```bash
+bin/starter:init "Acme CRM" --slug acme-platform
+```
+
+This is a one-shot command: it refuses to run again after the starter namespace has been replaced.
+
 ## What's included
 
 |                          |                                                                                           |

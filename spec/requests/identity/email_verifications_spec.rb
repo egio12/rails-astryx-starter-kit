@@ -39,6 +39,16 @@ RSpec.describe "Identity::EmailVerifications", type: :request do
         expect(response).to redirect_to(settings_email_path)
       end
     end
+
+    context "with an unexpected lookup error" do
+      it "does not suppress the error" do
+        allow(User).to receive(:find_by_token_for).and_raise("database unavailable")
+
+        expect {
+          get identity_email_verification_path(sid: "valid-looking-token")
+        }.to raise_error(RuntimeError, "database unavailable")
+      end
+    end
   end
 
   describe "POST /identity/email_verification" do
@@ -51,6 +61,18 @@ RSpec.describe "Identity::EmailVerifications", type: :request do
         post identity_email_verification_path
       }.to have_enqueued_email(UserMailer, :email_verification).with(params: { user: user }, args: [])
       expect(response).to be_redirect
+    end
+
+    it "blocks the 4th resend within 10 minutes" do
+      user = users(:one)
+      user.update!(verified: false)
+      sign_in user
+
+      3.times { post identity_email_verification_path }
+      post identity_email_verification_path
+
+      expect(response).to be_redirect
+      expect(flash[:alert]).to eq("Too many verification emails. Please try again later")
     end
   end
 end

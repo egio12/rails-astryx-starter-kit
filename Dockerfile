@@ -84,6 +84,10 @@ FROM base AS branch-ssr-false
 # Final stage for app image: picks the right branch by SSR_ENABLED
 FROM branch-ssr-${SSR_ENABLED} AS final
 
+# Keep the Rails runtime configuration aligned with the selected image branch.
+ARG SSR_ENABLED
+ENV SSR_ENABLED="${SSR_ENABLED}"
+
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash
