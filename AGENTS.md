@@ -68,7 +68,7 @@ Use Chrome: `bin/rspec spec/system` already defaults to headless Chrome. Not Saf
 flaky here, and retry helpers around `fill_in` make it worse.
 
 <!-- ASTRYX:START -->
-Astryx v0.1.8 · 153 components
+Astryx v0.1.9 · 153 components
 CLI: run every command as `npx astryx <cmd>` (shown below as `astryx ...`).
 
 SETUP (once, in your app entry e.g. main.tsx) — without these, components render unstyled:
@@ -83,7 +83,6 @@ WORKFLOW — discover, don't guess. Before writing UI:
 RULES:
 - No <div> — components do all layout/spacing. Full page → AppShell; sidebar nav → SideNav.
 - Frame first: pick the shell (AppShell / Layout+LayoutPanel) and budget regions in px BEFORE writing content (`astryx docs layout`).
-- Nested `Section` is full-bleed by design: it escapes its parent container padding. Use `Section` only for an intentional page region or surface; use `VStack`/`HStack` for neutral grouping. When nested section content must align with its parent, set the documented `padding` prop explicitly to the same spacing step instead of relying on the theme default.
 - Dense data = rows (Table, List/Item) edge-to-edge — never Card-wrapped list items. Card = dashboard widgets, galleries, settings groups only.
 - Status → StatusDot/Token; Badge only for counts and enumerated states, never decoration.
 - Custom styling: component props first; else Tailwind utilities backed by tokens (bg-surface, text-primary, rounded-lg) via tailwind-theme.css. No raw hex/px.
