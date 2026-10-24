@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1.4"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use sqlite3 as the database for Active Record
@@ -37,7 +37,7 @@ gem "image_processing", "~> 1.2"
 gem "rails_vite" # Vite integration [https://github.com/skryukov/rails_vite]
 
 # The Rails adapter for Inertia.js [https://inertia-rails.dev]
-gem "inertia_rails", "~> 3.21"
+gem "inertia_rails", "~> 3.23"
 
 # An authentication system generator for Rails applications
 # we leave gem here to watch for security updates
@@ -53,7 +53,7 @@ gem "alba"
 gem "alba-inertia"
 
 # Pagination [https://ddnexus.github.io/pagy]
-gem "pagy", "~> 43.6"
+gem "pagy", "~> 43.8"
 
 # Authorization policies [https://actionpolicy.evilmartians.io]
 gem "action_policy"
